@@ -1,0 +1,5 @@
+source,site,rows,cols,status
+NASA POWER,sandwip,1461,5,OK
+UCI Grid Stability,-,10000,14,OK
+LBNL CERTS,-,0,0,MANUAL: see data/raw/certs/
+IEEE PQ,-,0,0,MANUAL: see data/raw/ieee_pq/
