@@ -9,8 +9,12 @@ env/
 .pytest_cache/
 .ipynb_checkpoints/
 
-# --- Data (regenerate via src/loaders/load_uci_grid.py) ---
-data/raw/
+# --- Data ---
+# UCI dataset is small (2.4 MB) and redistributable, so we track it in-repo.
+# Other raw folders (large downloads, private files) stay ignored.
+data/raw/*
+!data/raw/uci_grid/
+!data/raw/uci_grid/**
 
 # --- Trained models (regenerate via src/baselines.py / compliance_classifier.py) ---
 models/*.pkl
