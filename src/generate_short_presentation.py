@@ -392,10 +392,13 @@ def slide_5_synthetic(prs):
         r = p2.add_run(); r.text = line
         r.font.size = Pt(11); r.font.color.rgb = WHITE
 
+    # Bottom plot strip - constrained by HEIGHT so they don't overflow.
+    # Available vertical space: 5.05 -> 6.95 = 1.90 in.  Use 1.55 in tall,
+    # centre horizontally on their halves.
     _image(s, FIG_DIR / "synthetic" / "03_daily_profile.png",
-           Inches(0.7), Inches(5.2), width=Inches(6.2))
+           Inches(0.9), Inches(5.10), height=Inches(1.55))
     _image(s, FIG_DIR / "synthetic" / "04_correlations.png",
-           Inches(7.2), Inches(5.0), width=Inches(5.6))
+           Inches(9.5), Inches(5.10), height=Inches(1.55))
     _footer(s, "Synthetic dataset", 5)
 
 
