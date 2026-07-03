@@ -63,15 +63,16 @@ Everything is on GitHub at
               +---------------+---------------+
                               |
                     "AI-Optimized Control"
-                (the point where my ML models
-                  become the controller inside
-                     the EEE simulation)
+                (the point where the CSE side's
+                  ML models become the controller
+                  inside the EEE simulation)
 ```
 
-That last box is the paper's main contribution. The EEE teammate's
+That last box is the paper's main contribution. The EEE side's
 compliance table has a scenario called *"AI-Optimized Control"* that
-gets the best THD — that AI is *my* trained model. That's what makes
-this an interdisciplinary paper instead of two separate ones.
+gets the best THD — that AI is the CSE side's trained model. That is
+what makes this an interdisciplinary paper instead of two separate
+ones.
 
 ---
 
@@ -82,7 +83,7 @@ this an interdisciplinary paper instead of two separate ones.
 | [`src/`](src/) | All the Python — 8 scripts covering data loading, EDA, baselines, statistics, robustness, synthetic-data generation, compliance classifier, forecasting |
 | [`data/raw/uci_grid/`](data/raw/uci_grid/) | UCI Grid Stability CSV (10k rows, downloaded automatically by the loader) |
 | [`data/synthetic/`](data/synthetic/) | My synthetic Bangladesh microgrid dataset (50k rows, .csv + .parquet) — see the strong "do not publish on this" warning in that folder's README |
-| [`eee_sim/`](eee_sim/) | The EEE teammate's Simulink builder + my Python port that reproduces the same math |
+| [`eee_sim/`](eee_sim/) | The EEE side's Simulink builder + the CSE side's Python port that reproduces the same math |
 | [`figures/`](figures/) | 7 sub-folders of plots — EDA, robustness, forecasting, compliance, EEE simulation, synthetic-data EDA |
 | [`results/`](results/) | Every metric I've computed as a CSV — model accuracies, McNemar p-values, robustness margins, forecasting RMSE etc. |
 | [`models/`](models/) | Trained model checkpoints (`.pkl` for sklearn, `.pt` for PyTorch). Gitignored — regenerate by rerunning the scripts. |
@@ -114,7 +115,7 @@ python src/generate_synthetic_dataset.py 50000   # regenerate the CSV/parquet
 python src/compliance_classifier.py              # 3-class IEEE 519 compliance
 python src/forecasting.py                        # LSTM / GRU / MLP forecasting
 
-# EEE physics simulation (my Python port of teammate's MATLAB)
+# EEE physics simulation (Python port of the MATLAB Simulink model)
 python eee_sim/microgrid_pq_twin.py              # THD 27% -> 2% demo
 ```
 
