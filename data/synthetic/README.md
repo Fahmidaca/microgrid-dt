@@ -155,6 +155,105 @@ See [`figures/synthetic/`](../../figures/synthetic/) for:
 3. `03_daily_profile.png` — sample day showing load / PV / wind curves
 4. `04_correlations.png` — correlation heatmap of key features
 
+---
+
+## What has been trained and tested on this dataset
+
+Two downstream ML pipelines currently use this dataset. Their code lives
+in [`src/`](../../src/) and their outputs live in
+[`results/`](../../results/) and [`figures/`](../../figures/).
+
+### 1. IEEE 519 compliance classifier (3-class)
+
+**Script:** [`src/compliance_classifier.py`](../../src/compliance_classifier.py)
+**Task:** Predict `IEEE_519_compliance` ∈ {PASS, MARGINAL, FAIL} from the
+operational signals only (V-THD, I-THD, and individual harmonic
+percentages are dropped from the feature set as they directly determine
+the label). The classifier sees voltage, current, load, storage state,
+weather, mode flags, and one-hot scenario.
+
+**Setup:**
+- 43 features after preprocessing (bools → int, categorical scenario
+  one-hot-encoded)
+- 80 / 20 stratified train-test split
+- 5 classifiers trained: Logistic Regression, Random Forest, HistGB,
+  XGBoost, MLP
+- 5 random seeds per model (25 runs total)
+
+**Metrics reported:** accuracy, macro-F1, per-class F1 for PASS /
+MARGINAL / FAIL, and a confusion matrix on the best model.
+
+**Headline results** (mean across 5 seeds, n_test = 10,000):
+
+| Model | Accuracy | Macro-F1 | FAIL-F1 |
+|---|---:|---:|---:|
+| XGBoost | 99.82% ± 0.05% | 99.55% | 99.28% |
+| Random Forest | 99.81% | 99.41% | 98.86% |
+| HistGB | 99.79% | 99.36% | 98.79% |
+| LogReg | 99.67% | 98.90% | 97.81% |
+| MLP | 99.18% | 97.20% | 94.41% |
+
+Full CSV: [`results/compliance_summary.csv`](../../results/compliance_summary.csv)
+Plots: [`figures/compliance/`](../../figures/compliance/)
+
+**Honest note:** these accuracies are unrealistically high because the
+synthetic generator's physics is very clean. Once the EEE side's real
+Simulink output replaces this data, expect the numbers to drop into
+the 85–92 % range, which is a much better story for a paper.
+
+### 2. Multi-horizon V-THD forecasting
+
+**Script:** [`src/forecasting.py`](../../src/forecasting.py)
+**Task:** Predict `V_THD_pct` at 5, 15, and 30 minutes in the future,
+using the last 30 minutes of 26 operational signals (voltage, current,
+power, frequency, RE, storage, load) plus the current V-THD value as
+a lookback window.
+
+**Setup:**
+- Sliding window of length 30 → shape (49,940 × 30 × 27)
+- **Chronological split** (no random shuffling — random splits would
+  leak future information into training):
+  - train = first 34,958 samples
+  - val   = next 4,994
+  - test  = last 9,988
+- 4 models: Persistence baseline, MLP, LSTM (2-layer, 64 units),
+  GRU (2-layer, 64 units)
+- 20 epochs, Adam optimiser, MSE loss, early-stopping on val
+
+**Metrics reported:** RMSE, MAE, R², and an early-warning F1 on the
+binary event "V-THD will exceed the IEEE 519 5 % limit within the
+next horizon".
+
+**Headline results** (test set, 5-minute horizon):
+
+| Model | RMSE | MAE | R² | Early-warning F1 |
+|---|---:|---:|---:|---:|
+| Persistence (naive) | 1.50 | 1.17 | -0.67 | 0.088 |
+| MLP | 1.07 | 0.84 | +0.15 | 0.000 |
+| LSTM | 1.06 | 0.83 | +0.16 | 0.000 |
+| GRU | 1.07 | 0.83 | +0.16 | 0.000 |
+
+Full CSV: [`results/forecasting_summary.csv`](../../results/forecasting_summary.csv)
+Plots: [`figures/forecasting/`](../../figures/forecasting/) (truth-vs-forecast overlays at each horizon, RMSE bars, early-warning F1 bars, training curves)
+
+**Honest note:** all three deep models beat the persistence baseline by
+~30 % on RMSE — the pipeline extracts real signal. But early-warning
+F1 collapses to 0 for the deep models because breach events are only
+2 % of samples and MSE loss pushes predictions toward the mean. This
+is a real methodological limitation of point-forecast + MSE on rare
+events, not a bug. The next iteration reframes the task as binary
+breach classification or class-weighted loss.
+
+### Trained model checkpoints
+
+Trained models are saved (but gitignored — regenerate by rerunning
+the scripts):
+
+- `models/compliance/*.pkl` — the 5 sklearn compliance classifiers,
+  seed 0
+- `models/forecasting/*.pt` — the 3 PyTorch forecasters (MLP, LSTM,
+  GRU) with best-validation weights
+
 ## When to delete these files
 
 Once the EEE side's Simulink IEEE 14-bus simulator is producing real
