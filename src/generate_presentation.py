@@ -154,28 +154,30 @@ def _add_table(slide, headers, rows, left, top, width, height,
 def slide_title(prs):
     s = prs.slides.add_slide(prs.slide_layouts[6])
     _paint_bg(s, DARK)
-    # coral accent bar
+    # coral accent bar spans the whole text stack
     bar = s.shapes.add_shape(MSO_SHAPE.RECTANGLE,
-                             Inches(0.7), Inches(2.4), Inches(0.15), Inches(2.6))
+                             Inches(0.7), Inches(1.7), Inches(0.15), Inches(3.9))
     bar.line.fill.background(); bar.fill.solid()
     bar.fill.fore_color.rgb = CORAL
     _add_text(s, "Microgrid Digital Twin",
-              Inches(1.0), Inches(2.3), Inches(11), Inches(1.0),
-              size=44, bold=True, color=WHITE)
+              Inches(1.0), Inches(1.7), Inches(11.5), Inches(1.2),
+              size=54, bold=True, color=WHITE)
     _add_text(s, "Stability, Power Quality, and Forecasting",
-              Inches(1.0), Inches(3.2), Inches(11), Inches(0.8),
-              size=26, color=TEAL)
-    _add_text(s, "Progress report - CSE side ML pipelines + EEE side simulation",
-              Inches(1.0), Inches(4.1), Inches(11), Inches(0.5),
-              size=18, color=CREAM)
+              Inches(1.0), Inches(2.95), Inches(11.5), Inches(0.9),
+              size=34, color=TEAL)
     _add_text(s,
-              "Target venues: IEEE Trans. Smart Grid (Q1, IF~10)  |  "
+              "Progress report  -  CSE side ML pipelines  +  "
+              "EEE side simulation",
+              Inches(1.0), Inches(3.95), Inches(11.5), Inches(0.7),
+              size=22, bold=True, color=CREAM)
+    _add_text(s,
+              "Target venues:  IEEE Trans. Smart Grid (Q1, IF~10)  |  "
               "Applied Energy (Q1, IF~11)",
-              Inches(1.0), Inches(4.9), Inches(11), Inches(0.5),
-              size=14, color=LIGHT)
+              Inches(1.0), Inches(4.9), Inches(11.5), Inches(0.6),
+              size=19, color=LIGHT)
     _add_text(s, "github.com/Fahmidaca/microgrid-dt-1",
-              Inches(1.0), Inches(6.5), Inches(11), Inches(0.4),
-              size=13, color=GRAY, font="Consolas")
+              Inches(1.0), Inches(6.5), Inches(11.5), Inches(0.5),
+              size=17, color=CREAM, font="Consolas")
 
 
 def slide_agenda(prs):
