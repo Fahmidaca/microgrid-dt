@@ -19,15 +19,15 @@ downstream code or paper table can verify the origin at a glance.
 ❌ Any claim that begins with "we evaluated on real microgrid data..."
 ❌ Skipping the real Simulink simulator run when a paper requires it
 
-**This matters because your CSE 400 professor explicitly flagged
-Fabricated Data as a top research-integrity violation:**
+**This matters because the supervisor explicitly told us that
+Fabricated Data is a top research-integrity violation:**
 
 > *"গবেষণাগত অসততার একটি বড় কারণ হলো ... Fabricated Data ...
 >  একবার বিশ্বাস হারালে ... সবকিছুই ক্ষতিগ্রস্ত হয়।"*
 
 Before publishing, replace this synthetic data with either:
 
-1. Output from your EEE teammate's Simulink IEEE 14-bus simulator, OR
+1. Output from the EEE side's Simulink IEEE 14-bus simulator, OR
 2. A published real-world dataset (e.g. UCI Grid Stability, LBNL CERTS
    real microgrid traces, PJM operational data)
 
@@ -157,7 +157,7 @@ See [`figures/synthetic/`](../../figures/synthetic/) for:
 
 ## When to delete these files
 
-Once your EEE teammate's Simulink IEEE 14-bus simulator is producing real
+Once the EEE side's Simulink IEEE 14-bus simulator is producing real
 output CSVs, delete `microgrid_synthetic_v1.*` and update the ML pipeline
 to point at the real files. The synthetic generator script
 (`src/generate_synthetic_dataset.py`) can stay in the repo as a
