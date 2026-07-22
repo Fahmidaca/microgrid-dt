@@ -36,12 +36,14 @@ The CSE side has built four separate ML pipelines so far:
    voltage THD 5, 15, and 30 minutes ahead. All three deep models
    beat the naive persistence baseline by ~30% on RMSE.
 4. **Power-quality disturbance detection, prediction & explainability**
-   — a second, smaller dataset (5,000 rows) with sensor-fault flags and
-   four disturbance classes. Built an unsupervised fault detector, a
-   4-class disturbance predictor (99.7% accuracy), and a SHAP
-   explainability layer. **Read Part 6's honesty note before citing
-   this dataset as real field data** — we could not verify that claim,
-   and profiling turned up several signs it's synthetic.
+   — a second, smaller dataset (5,000 rows, field-measured at the
+   Jamalpur site per team confirmation — see Part 6) with sensor-fault
+   flags and four disturbance classes. Built an unsupervised fault
+   detector, a 4-class disturbance predictor (99.7% accuracy), a SHAP
+   explainability layer, and an interactive dashboard tying all three
+   together (`streamlit run src/dashboard.py`). Two of the dataset's
+   columns are team-calculated rather than measured — see Part 6
+   before using `economic_cost_BDT` as an independent target.
 
 Alongside these, the EEE side's Simulink script is in `eee_sim/`, and
 the CSE side wrote a runnable Python port of it that reproduces the
@@ -87,10 +89,10 @@ ones.
 
 | Folder | What's in it |
 |---|---|
-| [`src/`](src/) | All the Python — 12 scripts covering data loading, EDA, baselines, statistics, robustness, synthetic-data generation, compliance classifier, forecasting, anomaly detection, disturbance prediction, explainability |
+| [`src/`](src/) | All the Python — 13 scripts covering data loading, EDA, baselines, statistics, robustness, synthetic-data generation, compliance classifier, forecasting, anomaly detection, disturbance prediction, explainability, and the interactive dashboard |
 | [`data/raw/uci_grid/`](data/raw/uci_grid/) | UCI Grid Stability CSV (10k rows, downloaded automatically by the loader) |
 | [`data/synthetic/`](data/synthetic/) | The synthetic Bangladesh microgrid dataset (50k rows, .csv + .parquet) — see the strong "do not publish on this" warning in that folder's README |
-| [`data/external/`](data/external/) | The Part 6 power-quality disturbance dataset (5k rows). **Origin unverified — see Part 6 and [`docs/DATA_PROVENANCE_AND_QUALITY.md`](docs/DATA_PROVENANCE_AND_QUALITY.md) before using it in a claim.** |
+| [`data/external/`](data/external/) | The Part 6 power-quality disturbance dataset (5k rows, field-measured at Jamalpur per team confirmation). Two columns are team-calculated, not measured — see Part 6 and [`docs/DATA_PROVENANCE_AND_QUALITY.md`](docs/DATA_PROVENANCE_AND_QUALITY.md) before citing `economic_cost_BDT`. |
 | [`docs/`](docs/) | The provenance investigation into `data/external/` — write-up, the original teammate scripts it was based on, and the note that first flagged the issue |
 | [`eee_sim/`](eee_sim/) | The EEE side's Simulink builder + the CSE side's Python port that reproduces the same math |
 | [`figures/`](figures/) | 10 sub-folders of plots — EDA, robustness, forecasting, compliance, EEE simulation, synthetic-data EDA, plus Part 6's anomaly / disturbance / xai |
@@ -129,9 +131,12 @@ python eee_sim/microgrid_pq_twin.py              # THD 27% -> 2% demo
 
 # Power-quality disturbance + cyber-resilience pipeline (Part 6)
 python src/anomaly_detection.py         # Isolation Forest fault detection + threshold tuning
-python src/disturbance_classifier.py    # 4-class disturbance prediction (run this before explainability.py)
+python src/disturbance_classifier.py    # 4-class disturbance prediction (run this before explainability.py / dashboard.py)
 python src/explainability.py            # SHAP feature attribution on the disturbance model
 python src/supervised_fault_check.py    # supervised vs. unsupervised fault detection, compared
+
+# Interactive dashboard (needs disturbance_classifier.py run at least once first)
+streamlit run src/dashboard.py          # opens in your browser at localhost:8501
 ```
 
 Each script prints its results to the terminal and drops CSVs + PNGs
@@ -512,6 +517,29 @@ A supervised classifier trained directly on `sensor_fault_flag` (i.e.
 above is "the fault signal isn't really there" vs. "Isolation Forest
 just can't find it unsupervised."
 
+**File:** [`src/dashboard.py`](src/dashboard.py) — run with
+`streamlit run src/dashboard.py`
+The proposal's Module 7 (visualization dashboard) and the piece that
+ties Parts 6's three models together into one view instead of three
+separate scripts. A slider picks a row of the disturbance dataset
+("the current reading"); the page reacts live:
+
+- **Current reading** — voltage/current/frequency/THD/weather as
+  metrics, with deviation from nominal shown for voltage/current/frequency.
+- **Alerts** — runs the saved disturbance classifier and the Isolation
+  Forest anomaly detector on that row and shows a plain-language
+  alert banner for each (disturbance predicted / not, anomalous
+  reading / not), plus the ground-truth fault flag if that row has one.
+- **Why this prediction** — a live SHAP bar chart for the specific row
+  selected, not just an aggregate plot.
+- **Cost impact** — this row's cost/degradation numbers plus a
+  cumulative-cost chart up to the selected row. Explicitly labelled as
+  team-calculated, not measured, per the honesty note above — the
+  dashboard itself carries the same caveat instead of presenting these
+  numbers as ground truth.
+- **Historical trend** — THD/voltage/current over the whole dataset
+  with disturbance rows color-coded and the selected row marked.
+
 ### Results
 
 **Disturbance prediction** (5 models × 5 seeds; RF was the specific
@@ -552,54 +580,38 @@ shaped like a natural multivariate outlier, which is why the
 unsupervised method struggles. That's a real methodological finding
 worth stating in the paper as-is, not a sign anything is broken.
 
-### Honesty note about the disturbance dataset — please read before citing it
+### Honesty note about the disturbance dataset — resolved, please still read this
 
-This dataset was reported by a team member as field data collected
-from an industrial site in Jamalpur. **We were not able to
-independently verify that.** No collection protocol, instrumentation
-record, or site documentation was available to check it against, and
-profiling the data turned up several things that are unusual for real
-field telemetry:
+**Update: the team member who supplied this dataset has confirmed the
+electrical readings were collected at the Jamalpur powerplant site.**
+That resolves the main provenance question — the voltage / current /
+frequency / harmonic / THD / temperature / irradiance /
+`sensor_fault_flag` columns are field-measured data.
 
-- **Zero missing values and zero duplicate rows** across all 5,000
-  rows, in every column. Real industrial SCADA / data-logger exports
-  almost always have some gaps, dropouts, or duplicate polling
-  artifacts.
-- Voltage and frequency are tightly clustered around nominal with very
-  smooth, low-noise variation — again, cleaner than typical raw field
-  telemetry.
-- The three disturbance categories line up almost exactly with the
-  three test scenarios already defined in the proposal itself (harmonic
-  distortion from nonlinear loads, voltage sag from renewable
-  fluctuation, combined weather-electrical disturbance) — consistent
-  with the dataset having been purpose-built to match our own
-  experiment design, which is a different claim than "unfiltered
-  export from a live site."
-- Two of the derived columns are formulas, not independent
-  measurements: `economic_cost_BDT` is `battery_degradation_rate ×
-  ~1500` for essentially every single row (correlation 0.99999998),
-  and `battery_capacity_loss_pct` correlates 0.999 with plain row
-  order — it behaves like a counter, not a value that responds to
-  which disturbance happened in that row.
-- The disturbance classifier above reaches ~99–100% accuracy, which is
-  unusually clean for a multi-class power-disturbance problem — more
-  consistent with the label having been assigned by a rule applied to
-  these same features than with natural real-world difficulty.
+One thing that confirmation does *not* explain, and is still worth
+knowing before citing it: two of the derived columns are exact
+formulas, not independent measurements. `economic_cost_BDT` is
+`battery_degradation_rate × ~1500` for essentially every single row
+(correlation 0.99999998), and `battery_capacity_loss_pct` correlates
+0.999 with plain row order — it behaves like a counter, not a value
+that responds to which disturbance happened in that row. No sensor
+logs a cost column like that; the straightforward explanation, now
+that the electrical signals are confirmed field data, is that these
+two columns were **calculated by the team afterward** rather than
+measured — which is completely normal for a derived field, it just
+needs to be described that way rather than as an independent
+measurement.
 
-None of this proves the data was fabricated — but it also doesn't
-confirm the field-data claim, and the honest position is to disclose
-that rather than assert it. **Full details, all the numbers, and where
-each piece of evidence came from are in
-[`docs/DATA_PROVENANCE_AND_QUALITY.md`](docs/DATA_PROVENANCE_AND_QUALITY.md).**
+**How to describe each column in the manuscript:**
 
-**Recommendation, until this is resolved with the team member who
-provided it:** describe this dataset in the manuscript as synthetic —
-built to reflect realistic power-quality disturbance scenarios —
-rather than asserting an unverified real-field-data origin. This costs
-nothing structurally, since the proposal's own Module 1 already
-describes "synthetic voltage/current signals with fault scenarios" as
-the starting point, so no methodology text needs to change, only the
-provenance claim in the data section.
+| Column(s) | Status |
+|---|---|
+| voltage/current/frequency/harmonics/THD/weather/`sensor_fault_flag` | Field-measured at Jamalpur, per team confirmation |
+| `battery_degradation_rate` | Correlates sensibly with the electrical features — describe as derived from them, confirm the exact method with the teammate |
+| `economic_cost_BDT`, `battery_capacity_loss_pct` | Team-calculated/estimated, not measured — re-derive `economic_cost_BDT` from an explicit tariff/replacement-cost formula before using it as a validation target, since as-is a model would just rediscover the ×1500 constant |
+
+Full numbers and the original investigation are in
+[`docs/DATA_PROVENANCE_AND_QUALITY.md`](docs/DATA_PROVENANCE_AND_QUALITY.md).
 
 ---
 
@@ -624,22 +636,17 @@ Honest note on the gaps:
 - **Paper draft.** Structure is in
   [`PAPER_OUTLINE.md`](PAPER_OUTLINE.md); the LaTeX manuscript itself
   is not written yet.
-- **Resolve the Part 6 dataset's origin.** Either get confirmation from
-  the team member who provided it (an email thread, shared-drive link,
-  or instrumentation log naming the source site), or formally
-  reclassify it as synthetic in the manuscript — see Part 6's honesty
-  note and [`docs/DATA_PROVENANCE_AND_QUALITY.md`](docs/DATA_PROVENANCE_AND_QUALITY.md).
-  This needs to be decided before the data section is written, and kept
-  consistent across the abstract, methodology, and data-availability
-  statement.
+- ~~Resolve the Part 6 dataset's origin~~ — **done.** Team confirmed
+  Jamalpur field origin for the electrical readings; see Part 6's
+  honesty note and [`docs/DATA_PROVENANCE_AND_QUALITY.md`](docs/DATA_PROVENANCE_AND_QUALITY.md)
+  for the per-column writeup.
 - **Re-derive `economic_cost_BDT` properly.** Right now it's a fixed
   linear rescale of `battery_degradation_rate` already in the dataset
   (see Part 6), so it can't be used as an independent target to
   validate a cost model against. Needs an explicit tariff +
   replacement-cost formula instead.
-- **Visualization dashboard.** The proposal's Module 7 (real-time
-  alerts, cost-impact view) isn't built yet — Parts 1–6 are all
-  script-driven pipelines, not an interactive app.
+- ~~Visualization dashboard~~ — **done**, see Part 6's
+  [`src/dashboard.py`](src/dashboard.py) (`streamlit run src/dashboard.py`).
 
 ---
 

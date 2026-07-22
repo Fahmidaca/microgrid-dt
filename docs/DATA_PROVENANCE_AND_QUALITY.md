@@ -84,17 +84,43 @@ in the manuscript — recommend calling this repo's dataset
 recovered later, to avoid two different things both being called
 "Dataset B."
 
-**5. Recommendation, restated plainly:** of the note's two Section 7
-options — (a) chase down a handoff artifact from the teammate proving
-the Jamalpur origin, or (b) reclassify Dataset A as synthetic — go with
-**(b)**. Nothing found here supports (a), the statistical fingerprints
-in both the original note and this addendum all point the same
-direction, and the note's own suggested manuscript language already
-gives you a way to write this up that is defensible with a reviewer.
-Reclassifying costs nothing structurally: the proposal's own Module 1
-already describes "synthetic voltage/current signals with fault
-scenarios," so no methodology section needs to change, only the
-provenance claim.
+**5. Recommendation, restated plainly (superseded — see Resolution
+below):** of the note's two Section 7 options — (a) chase down a
+handoff artifact from the teammate proving the Jamalpur origin, or (b)
+reclassify Dataset A as synthetic — this addendum originally
+recommended (b), since nothing found on this machine supported (a) at
+the time.
+
+---
+
+## Resolution
+
+The team member who supplied this dataset has since confirmed directly
+that the electrical readings were collected at the Jamalpur powerplant
+site. That settles the raw-signal provenance question above — the
+voltage / current / frequency / harmonic / THD / temperature /
+irradiance / `sensor_fault_flag` columns are field-measured data, not
+synthetic, per team confirmation.
+
+**This does not change finding #2.** `economic_cost_BDT` and
+`battery_capacity_loss_pct` are still an exact formula and a row
+counter, respectively — no field instrumentation produces a cost
+column that is `battery_degradation_rate × 1500.00` for every single
+row. Given the electrical signals are now confirmed field data, the
+straightforward and unremarkable explanation is that these two columns
+were **calculated by the team afterward**, not logged by any sensor —
+which is completely normal for a derived/estimated field. It only
+becomes a problem if they're described in the manuscript as
+independent measurements.
+
+**Column-by-column description to use going forward:**
+
+| Column(s) | Status | How to describe it |
+|---|---|---|
+| `voltage_rms_V`, `current_rms_A`, `frequency_Hz`, `temperature_C`, `irradiance_Wm2`, `harmonic_3rd/5th/7th_pct`, `THD_voltage_pct`, `THD_current_pct`, `sensor_fault_flag` | Field-measured, confirmed | Real data collected at the Jamalpur site |
+| `disturbance_type` / `disturbance_label` | Field-measured or team-labelled — confirm which with the teammate | If hand-labelled from the raw signals rather than logged automatically, say so |
+| `battery_degradation_rate` | Has a defensible physical correlation with the electrical features (finding #2) | Describe as derived from the field measurements — confirm the exact method with the teammate before stating it as "measured" |
+| `economic_cost_BDT`, `battery_capacity_loss_pct` | Formulaic / calculated, not measured (finding #2) | Describe explicitly as team-calculated/estimated columns. Re-derive `economic_cost_BDT` from a transparent, cited tariff-plus-replacement-cost formula before using it as a validation target for any cost-mapping module — using it as-is would just mean the model rediscovers the ×1500 constant, not that it learned a cost model. |
 
 ---
 
