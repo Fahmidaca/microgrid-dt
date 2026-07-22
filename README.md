@@ -93,7 +93,7 @@ ones.
 | [`data/raw/uci_grid/`](data/raw/uci_grid/) | UCI Grid Stability CSV (10k rows, downloaded automatically by the loader) |
 | [`data/synthetic/`](data/synthetic/) | The synthetic Bangladesh microgrid dataset (50k rows, .csv + .parquet) — see the strong "do not publish on this" warning in that folder's README |
 | [`data/external/`](data/external/) | The Part 6 power-quality disturbance dataset (5k rows, field-measured at Jamalpur per team confirmation). Two columns are team-calculated, not measured — see Part 6 and [`docs/DATA_PROVENANCE_AND_QUALITY.md`](docs/DATA_PROVENANCE_AND_QUALITY.md) before citing `economic_cost_BDT`. |
-| [`docs/`](docs/) | The provenance investigation into `data/external/` — write-up, the original teammate scripts it was based on, and the note that first flagged the issue |
+| [`docs/`](docs/) | [`CSE_WORK_SUMMARY.md`](docs/CSE_WORK_SUMMARY.md) — a CSE-only walkthrough of everything in this section, plus the `data/external/` provenance investigation write-up and the original teammate scripts it was based on |
 | [`eee_sim/`](eee_sim/) | The EEE side's Simulink builder + the CSE side's Python port that reproduces the same math |
 | [`figures/`](figures/) | 10 sub-folders of plots — EDA, robustness, forecasting, compliance, EEE simulation, synthetic-data EDA, plus Part 6's anomaly / disturbance / xai |
 | [`results/`](results/) | Every metric computed as a CSV — model accuracies, McNemar p-values, robustness margins, forecasting RMSE, anomaly-detection and disturbance-classifier scores, etc. |
