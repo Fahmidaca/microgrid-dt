@@ -23,7 +23,7 @@ If you are on the team — please jump straight to the
 
 ## The one-minute summary
 
-The CSE side has built three separate ML pipelines so far:
+The CSE side has built four separate ML pipelines so far:
 
 1. **UCI Grid Stability** — 5 classifiers on a public benchmark
    dataset, plus a new robustness metric we call the
@@ -35,6 +35,13 @@ The CSE side has built three separate ML pipelines so far:
 3. **Multi-horizon THD forecasting** — LSTM, GRU, and MLP predicting
    voltage THD 5, 15, and 30 minutes ahead. All three deep models
    beat the naive persistence baseline by ~30% on RMSE.
+4. **Power-quality disturbance detection, prediction & explainability**
+   — a second, smaller dataset (5,000 rows) with sensor-fault flags and
+   four disturbance classes. Built an unsupervised fault detector, a
+   4-class disturbance predictor (99.7% accuracy), and a SHAP
+   explainability layer. **Read Part 6's honesty note before citing
+   this dataset as real field data** — we could not verify that claim,
+   and profiling turned up several signs it's synthetic.
 
 Alongside these, the EEE side's Simulink script is in `eee_sim/`, and
 the CSE side wrote a runnable Python port of it that reproduces the
@@ -80,12 +87,14 @@ ones.
 
 | Folder | What's in it |
 |---|---|
-| [`src/`](src/) | All the Python — 8 scripts covering data loading, EDA, baselines, statistics, robustness, synthetic-data generation, compliance classifier, forecasting |
+| [`src/`](src/) | All the Python — 12 scripts covering data loading, EDA, baselines, statistics, robustness, synthetic-data generation, compliance classifier, forecasting, anomaly detection, disturbance prediction, explainability |
 | [`data/raw/uci_grid/`](data/raw/uci_grid/) | UCI Grid Stability CSV (10k rows, downloaded automatically by the loader) |
-| [`data/synthetic/`](data/synthetic/) | My synthetic Bangladesh microgrid dataset (50k rows, .csv + .parquet) — see the strong "do not publish on this" warning in that folder's README |
+| [`data/synthetic/`](data/synthetic/) | The synthetic Bangladesh microgrid dataset (50k rows, .csv + .parquet) — see the strong "do not publish on this" warning in that folder's README |
+| [`data/external/`](data/external/) | The Part 6 power-quality disturbance dataset (5k rows). **Origin unverified — see Part 6 and [`docs/DATA_PROVENANCE_AND_QUALITY.md`](docs/DATA_PROVENANCE_AND_QUALITY.md) before using it in a claim.** |
+| [`docs/`](docs/) | The provenance investigation into `data/external/` — write-up, the original teammate scripts it was based on, and the note that first flagged the issue |
 | [`eee_sim/`](eee_sim/) | The EEE side's Simulink builder + the CSE side's Python port that reproduces the same math |
-| [`figures/`](figures/) | 7 sub-folders of plots — EDA, robustness, forecasting, compliance, EEE simulation, synthetic-data EDA |
-| [`results/`](results/) | Every metric I've computed as a CSV — model accuracies, McNemar p-values, robustness margins, forecasting RMSE etc. |
+| [`figures/`](figures/) | 10 sub-folders of plots — EDA, robustness, forecasting, compliance, EEE simulation, synthetic-data EDA, plus Part 6's anomaly / disturbance / xai |
+| [`results/`](results/) | Every metric computed as a CSV — model accuracies, McNemar p-values, robustness margins, forecasting RMSE, anomaly-detection and disturbance-classifier scores, etc. |
 | [`models/`](models/) | Trained model checkpoints (`.pkl` for sklearn, `.pt` for PyTorch). Gitignored — regenerate by rerunning the scripts. |
 | [`PAPER_OUTLINE.md`](PAPER_OUTLINE.md) | Draft paper structure and target venues |
 | [`SRS_MicrogridDigitalTwin.tex`](SRS_MicrogridDigitalTwin.tex) | System requirements spec document |
@@ -117,6 +126,12 @@ python src/forecasting.py                        # LSTM / GRU / MLP forecasting
 
 # EEE physics simulation (Python port of the MATLAB Simulink model)
 python eee_sim/microgrid_pq_twin.py              # THD 27% -> 2% demo
+
+# Power-quality disturbance + cyber-resilience pipeline (Part 6)
+python src/anomaly_detection.py         # Isolation Forest fault detection + threshold tuning
+python src/disturbance_classifier.py    # 4-class disturbance prediction (run this before explainability.py)
+python src/explainability.py            # SHAP feature attribution on the disturbance model
+python src/supervised_fault_check.py    # supervised vs. unsupervised fault detection, compared
 ```
 
 Each script prints its results to the terminal and drops CSVs + PNGs
@@ -424,6 +439,170 @@ the harmonic spectrum before vs after the APF activates.
 
 ---
 
+## Part 6 — Cyber-resilience, disturbance prediction & explainability
+
+### Why this part exists
+
+A follow-on proposal, *"A Cyber-Resilient, Explainable Digital Twin
+Framework for Predictive and Cost-Aware Power Quality Management in
+Renewable Microgrids,"* asks for three things Parts 1–5 didn't cover
+yet:
+
+1. An **anomaly-detection layer** that can flag a sensor fault or bad
+   reading without being told in advance what a fault looks like
+   (the "cyber-resilience" piece — a grid shouldn't trust a reading
+   just because it arrived).
+2. A **dedicated prediction model** for *which kind* of power-quality
+   disturbance is happening, not just whether the grid is stable or
+   IEEE-519 compliant.
+3. An **explainability layer**, so a prediction comes with a reason a
+   human can check, instead of a black-box number.
+
+This part adds all three, using a new, smaller dataset that a team
+member provided separately from the Part 2 synthetic dataset.
+
+### The dataset
+
+**File:** [`data/external/microgrid_power_quality_dataset.csv`](data/external/)
+— 5,000 rows, 16 columns: voltage/current/frequency, temperature +
+irradiance (weather), three harmonic percentages, voltage/current THD,
+a `sensor_fault_flag`, a `disturbance_type` (Voltage_Sag /
+Harmonic_Distortion / Combined_Weather_Electrical / none), and three
+battery/cost columns.
+
+**Please read the honesty note below before using this dataset in
+any claim about real-world performance.**
+
+### What is implemented
+
+**File:** [`src/anomaly_detection.py`](src/anomaly_detection.py) →
+results in
+[`results/anomaly_detection_summary.csv`](results/anomaly_detection_summary.csv),
+[`results/anomaly_threshold_tuning.csv`](results/anomaly_threshold_tuning.csv),
+plots in [`figures/anomaly/`](figures/anomaly/)
+Fits an Isolation Forest (unsupervised — it never sees the fault
+labels during training) on this part's disturbance dataset **and** on
+the Part 2 synthetic dataset, side by side, rather than merging the
+two (their column schemas aren't compatible — one is single-phase with
+16 columns, the other three-phase with 50). Also adds 5-fold
+cross-validated threshold tuning on top of the raw anomaly score, to
+separate "is the ranking any good" (ROC-AUC) from "did we pick a good
+cutoff" (precision/recall/F1).
+
+**File:** [`src/disturbance_classifier.py`](src/disturbance_classifier.py)
+→ results in
+[`results/disturbance_summary.csv`](results/disturbance_summary.csv),
+plots in [`figures/disturbance/`](figures/disturbance/)
+Trains 5 classifiers × 5 seeds (same recipe as Parts 1 and 3) to
+predict `disturbance_type` from the electrical + weather columns.
+
+**File:** [`src/explainability.py`](src/explainability.py) → results
+in
+[`results/shap_feature_importance.csv`](results/shap_feature_importance.csv),
+plots in [`figures/xai/`](figures/xai/)
+Runs SHAP on the trained disturbance classifier to show which features
+drive each prediction. (Run `disturbance_classifier.py` first — this
+script loads its saved model instead of retraining.)
+
+**File:** [`src/supervised_fault_check.py`](src/supervised_fault_check.py)
+→ results in
+[`results/supervised_vs_unsupervised_fault_detection.csv`](results/supervised_vs_unsupervised_fault_detection.csv)
+A supervised classifier trained directly on `sensor_fault_flag` (i.e.
+*with* label access), to measure how much of the anomaly-detection gap
+above is "the fault signal isn't really there" vs. "Isolation Forest
+just can't find it unsupervised."
+
+### Results
+
+**Disturbance prediction** (5 models × 5 seeds; RF was the specific
+model saved and used for the confusion matrix / SHAP plots below):
+
+| Model | Mean accuracy | Mean macro-F1 |
+|---|---:|---:|
+| HistGB | 99.38% | 98.56% |
+| XGBoost | 99.34% | 98.49% |
+| **RF** (saved model) | 99.26% (99.70% on its saved split) | 98.29% |
+| MLP | 98.80% | 97.27% |
+| LogReg | 98.02% | 95.36% |
+
+**Anomaly / fault detection**, Isolation Forest, this part's dataset
+vs. the Part 2 synthetic dataset:
+
+| Dataset | True fault rate | ROC-AUC | Precision / Recall / F1 (default threshold) | Precision / Recall / F1 (5-fold CV-tuned threshold) |
+|---|---:|---:|---|---|
+| This part's disturbance dataset | 2.40% | **0.70** | 0.038 / 0.233 / 0.066 | 0.057 / **0.64** / 0.105 |
+| Part 2 synthetic dataset | 0.42% | 0.50 (chance) | 0.005 / 0.005 / 0.005 | ~0 / ~0.02 / ~0.01 |
+
+The Part 2 synthetic dataset's `fault_flag` is injected as pure random
+noise in its generator (`src/generate_synthetic_dataset.py`),
+uncorrelated with any feature on purpose — so a chance-level 0.50
+ROC-AUC there is the *correct* result, confirming the detector isn't
+finding phantom patterns, not a failure of the method.
+
+**Supervised vs. unsupervised**, on this part's dataset only:
+
+| Method | Precision | Recall | F1 | ROC-AUC |
+|---|---:|---:|---:|---:|
+| Supervised RF (uses fault labels) | 1.00 | 0.46 | 0.63 | 0.82 |
+| Unsupervised IsolationForest (CV-tuned) | 0.057 | 0.64 | 0.105 | 0.70 |
+
+Reading this: the fault signal *is* present in the electrical
+features (supervised access closes most of the gap), but it isn't
+shaped like a natural multivariate outlier, which is why the
+unsupervised method struggles. That's a real methodological finding
+worth stating in the paper as-is, not a sign anything is broken.
+
+### Honesty note about the disturbance dataset — please read before citing it
+
+This dataset was reported by a team member as field data collected
+from an industrial site in Jamalpur. **We were not able to
+independently verify that.** No collection protocol, instrumentation
+record, or site documentation was available to check it against, and
+profiling the data turned up several things that are unusual for real
+field telemetry:
+
+- **Zero missing values and zero duplicate rows** across all 5,000
+  rows, in every column. Real industrial SCADA / data-logger exports
+  almost always have some gaps, dropouts, or duplicate polling
+  artifacts.
+- Voltage and frequency are tightly clustered around nominal with very
+  smooth, low-noise variation — again, cleaner than typical raw field
+  telemetry.
+- The three disturbance categories line up almost exactly with the
+  three test scenarios already defined in the proposal itself (harmonic
+  distortion from nonlinear loads, voltage sag from renewable
+  fluctuation, combined weather-electrical disturbance) — consistent
+  with the dataset having been purpose-built to match our own
+  experiment design, which is a different claim than "unfiltered
+  export from a live site."
+- Two of the derived columns are formulas, not independent
+  measurements: `economic_cost_BDT` is `battery_degradation_rate ×
+  ~1500` for essentially every single row (correlation 0.99999998),
+  and `battery_capacity_loss_pct` correlates 0.999 with plain row
+  order — it behaves like a counter, not a value that responds to
+  which disturbance happened in that row.
+- The disturbance classifier above reaches ~99–100% accuracy, which is
+  unusually clean for a multi-class power-disturbance problem — more
+  consistent with the label having been assigned by a rule applied to
+  these same features than with natural real-world difficulty.
+
+None of this proves the data was fabricated — but it also doesn't
+confirm the field-data claim, and the honest position is to disclose
+that rather than assert it. **Full details, all the numbers, and where
+each piece of evidence came from are in
+[`docs/DATA_PROVENANCE_AND_QUALITY.md`](docs/DATA_PROVENANCE_AND_QUALITY.md).**
+
+**Recommendation, until this is resolved with the team member who
+provided it:** describe this dataset in the manuscript as synthetic —
+built to reflect realistic power-quality disturbance scenarios —
+rather than asserting an unverified real-field-data origin. This costs
+nothing structurally, since the proposal's own Module 1 already
+describes "synthetic voltage/current signals with fault scenarios" as
+the starting point, so no methodology text needs to change, only the
+provenance claim in the data section.
+
+---
+
 ## What's still needed
 
 Honest note on the gaps:
@@ -445,6 +624,22 @@ Honest note on the gaps:
 - **Paper draft.** Structure is in
   [`PAPER_OUTLINE.md`](PAPER_OUTLINE.md); the LaTeX manuscript itself
   is not written yet.
+- **Resolve the Part 6 dataset's origin.** Either get confirmation from
+  the team member who provided it (an email thread, shared-drive link,
+  or instrumentation log naming the source site), or formally
+  reclassify it as synthetic in the manuscript — see Part 6's honesty
+  note and [`docs/DATA_PROVENANCE_AND_QUALITY.md`](docs/DATA_PROVENANCE_AND_QUALITY.md).
+  This needs to be decided before the data section is written, and kept
+  consistent across the abstract, methodology, and data-availability
+  statement.
+- **Re-derive `economic_cost_BDT` properly.** Right now it's a fixed
+  linear rescale of `battery_degradation_rate` already in the dataset
+  (see Part 6), so it can't be used as an independent target to
+  validate a cost model against. Needs an explicit tariff +
+  replacement-cost formula instead.
+- **Visualization dashboard.** The proposal's Module 7 (real-time
+  alerts, cost-impact view) isn't built yet — Parts 1–6 are all
+  script-driven pipelines, not an interactive app.
 
 ---
 
