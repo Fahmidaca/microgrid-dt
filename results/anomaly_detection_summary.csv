@@ -1,0 +1,5 @@
+dataset,n_rows,true_fault_rate_pct,contamination_setting,precision,recall,f1,roc_auc
+Dataset A (disturbance CSV),5000,2.4,matched_to_true_rate,0.0417,0.0417,0.0417,0.7035
+Dataset A (disturbance CSV),5000,2.4,auto,0.0381,0.2333,0.0655,0.7035
+Dataset B (microgrid_synthetic_v1),50000,0.416,matched_to_true_rate,0.0048,0.0048,0.0048,0.5043
+Dataset B (microgrid_synthetic_v1),50000,0.416,auto,0.0054,0.1971,0.0106,0.5043

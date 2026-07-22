@@ -1,0 +1,4 @@
+method,precision_fault,recall_fault,f1_fault,roc_auc
+Supervised RF (labels used),1.0,0.4583,0.6286,0.8247
+"Unsupervised IsolationForest, auto (from anomaly_detection.py)",0.0381,0.2333,0.0655,0.7035
+"Unsupervised IsolationForest, 5-fold CV-tuned threshold",0.057,0.6417,0.1047,0.7035
