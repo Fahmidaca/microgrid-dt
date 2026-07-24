@@ -65,15 +65,27 @@ def load_data() -> pd.DataFrame:
 
 
 @st.cache_resource
-def load_disturbance_model() -> dict:
+def load_disturbance_model(_df: pd.DataFrame) -> dict:
+    """Load a saved model if one exists locally (fast path for local dev,
+    where you've already run disturbance_classifier.py). Otherwise train
+    one directly from the data — this is the path that runs on a fresh
+    deploy (e.g. Streamlit Cloud), since models/*.pkl is gitignored on
+    purpose and a fresh git clone never has it. Same recipe as
+    disturbance_classifier.py's RF, just trained in-memory instead of
+    loaded from disk."""
     pkl_files = sorted(MODEL_DIR.glob("*_seed0.pkl"))
-    if not pkl_files:
-        st.error(
-            "No trained disturbance model found in models/disturbance/. "
-            "Run `python src/disturbance_classifier.py` first.")
-        st.stop()
-    with open(pkl_files[0], "rb") as f:
-        return pickle.load(f)
+    if pkl_files:
+        with open(pkl_files[0], "rb") as f:
+            return pickle.load(f)
+
+    from sklearn.ensemble import RandomForestClassifier
+    from sklearn.preprocessing import LabelEncoder
+
+    le = LabelEncoder()
+    y = le.fit_transform(_df["disturbance_type"])
+    model = RandomForestClassifier(n_estimators=300, random_state=SEED, n_jobs=-1)
+    model.fit(_df[FEATURE_COLS], y)
+    return {"model": model, "label_encoder": le, "features": FEATURE_COLS}
 
 
 @st.cache_resource
@@ -99,7 +111,7 @@ def build_shap_explainer(_model) -> shap.TreeExplainer:
 # Load everything once
 # --------------------------------------------------------------------- #
 df = load_data()
-bundle = load_disturbance_model()
+bundle = load_disturbance_model(df)
 disturbance_model = bundle["model"]
 label_encoder = bundle["label_encoder"]
 iso_forest, scaler = fit_anomaly_detector(df)
