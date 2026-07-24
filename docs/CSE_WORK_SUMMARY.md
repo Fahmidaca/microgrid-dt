@@ -160,13 +160,18 @@ engineer would expect. Per-class direction of effect:
 
 ### Dashboard (Module 7) — [`src/dashboard.py`](../src/dashboard.py)
 
-`streamlit run src/dashboard.py` — ties the three pieces above into
-one interactive view: pick a row, see the live reading, get a plain
-alert banner from both the disturbance classifier and the anomaly
-detector, see a live SHAP explanation for that specific row (not just
-an aggregate plot), and see the cost impact — explicitly labelled
-team-calculated rather than presented as ground truth (see the
-dataset section below for why).
+**Live: https://fahmidaca-microgrid-dt-srcdashboard-7yxtjd.streamlit.app**
+— no install needed, opens straight in a browser. To run it locally
+instead: `streamlit run src/dashboard.py`.
+
+Ties the three pieces above into one interactive view: pick a row, see
+the live reading, get a plain alert banner from both the disturbance
+classifier and the anomaly detector, see a live SHAP explanation for
+that specific row (not just an aggregate plot), and see the cost
+impact — explicitly labelled team-calculated rather than presented as
+ground truth (see the dataset section below for why).
+
+![Dashboard live view](../figures/dashboard/01_live_view.png)
 
 ---
 

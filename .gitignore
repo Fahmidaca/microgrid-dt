@@ -28,6 +28,11 @@ Thumbs.db
 *.swp
 *.swo
 
+# --- Office lock files (created while a .pptx/.docx/.xlsx is open) ---
+~$*.pptx
+~$*.docx
+~$*.xlsx
+
 # --- LaTeX build artefacts (if a paper/ dir is added later) ---
 *.aux
 *.log

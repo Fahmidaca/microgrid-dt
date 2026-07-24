@@ -517,8 +517,9 @@ A supervised classifier trained directly on `sensor_fault_flag` (i.e.
 above is "the fault signal isn't really there" vs. "Isolation Forest
 just can't find it unsupervised."
 
-**File:** [`src/dashboard.py`](src/dashboard.py) — run with
-`streamlit run src/dashboard.py`
+**File:** [`src/dashboard.py`](src/dashboard.py) —
+**live at https://fahmidaca-microgrid-dt-srcdashboard-7yxtjd.streamlit.app**,
+or run locally with `streamlit run src/dashboard.py`
 The proposal's Module 7 (visualization dashboard) and the piece that
 ties Parts 6's three models together into one view instead of three
 separate scripts. A slider picks a row of the disturbance dataset

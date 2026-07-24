@@ -390,34 +390,34 @@ def slide_7_dashboard_provenance(prs):
     _line(s, Inches(0.7), Inches(1.15), Inches(12.6), Inches(1.15),
           color=CORAL, weight=2.5)
 
-    _text(s, "Interactive dashboard  (streamlit run src/dashboard.py)",
-          Inches(0.7), Inches(1.3), Inches(6.0), Inches(0.4),
-          size=14, bold=True, color=TEAL)
-    _bullets(s, [
-        "Pick a row -> live reading (voltage/current/THD/weather)",
-        "Alert banners from BOTH the disturbance classifier and the "
-        "anomaly detector",
-        "Live SHAP explanation for that specific row, not just an "
-        "aggregate plot",
-        "Cost-impact panel — explicitly labelled as team-calculated, "
-        "not measured",
-        "Historical trend chart with disturbance rows colour-coded",
-    ], Inches(0.7), Inches(1.8), Inches(6.0), Inches(3.5),
-       size=12, color=DARK, spacing=7)
+    # Real screenshot of the deployed app, not a mockup.
+    _text(s, "Live at streamlit.app  —  streamlit run src/dashboard.py",
+          Inches(0.6), Inches(1.28), Inches(6.4), Inches(0.35),
+          size=12, bold=True, color=TEAL)
+    _image(s, FIG_DIR / "dashboard" / "01_live_view.png",
+           Inches(0.5), Inches(1.65), height=Inches(4.85))
 
-    _rounded_box(s, Inches(7.0), Inches(1.3), Inches(5.8), Inches(4.0),
+    _bullets(s, [
+        "Pick a row -> live reading + alert banners "
+        "(disturbance classifier + anomaly detector)",
+        "Live SHAP explanation for that specific row",
+        "Cost panel labelled team-calculated, not measured",
+        "Historical trend, disturbance rows colour-coded",
+    ], Inches(7.1), Inches(1.35), Inches(5.7), Inches(2.1),
+       size=11, color=DARK, spacing=5)
+
+    _rounded_box(s, Inches(7.1), Inches(3.55), Inches(5.7), Inches(3.0),
                  fill=TEAL, text_lines=[
                      "Data provenance — resolved",
                      "",
-                     "Team confirmed: electrical readings are field-",
-                     "measured at the Jamalpur powerplant site.",
+                     "Team confirmed: electrical readings are",
+                     "field-measured at the Jamalpur site.",
                      "",
-                     "Still true regardless: economic_cost_BDT and",
-                     "battery_capacity_loss_pct are team-calculated",
-                     "columns, not independent measurements —",
-                     "documented column-by-column so the paper",
-                     "describes each one correctly.",
-                 ], first_size=15, body_size=12)
+                     "Still true regardless: economic_cost_BDT",
+                     "and battery_capacity_loss_pct are team-",
+                     "calculated, not independent measurements —",
+                     "documented column-by-column.",
+                 ], first_size=14, body_size=11)
     _footer(s, "Dashboard + provenance", 7)
 
 
