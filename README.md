@@ -99,7 +99,7 @@ ones.
 | [`data/synthetic/`](data/synthetic/) | The synthetic Bangladesh microgrid dataset (50k rows, .csv + .parquet) — see the strong "do not publish on this" warning in that folder's README |
 | [`data/external/`](data/external/) | The Part 6 power-quality disturbance dataset (5k rows, field-measured at Jamalpur per team confirmation) plus two real HOMER Pro exports used in Part 5: `homer_hourly_simulation.csv` (8,760-row annual hourly simulation) and `homer_npc_coe_optimization.csv` (HOMER's own 3-architecture NPC/COE optimization table). Two columns of the disturbance dataset are team-calculated, not measured — see Part 6 and [`docs/DATA_PROVENANCE_AND_QUALITY.md`](docs/DATA_PROVENANCE_AND_QUALITY.md) before citing `economic_cost_BDT`. |
 | [`docs/`](docs/) | [`CSE_WORK_SUMMARY.md`](docs/CSE_WORK_SUMMARY.md) — a CSE-only walkthrough of everything in this section, plus the `data/external/` provenance investigation write-up and the original teammate scripts it was based on |
-| [`eee_sim/`](eee_sim/) | The EEE side's Simulink builder (not yet running, see Part 5), the CSE side's Python port that reproduces the same math, a HOMER-hour-driven scenario runner, and the HOMER economic-optimization summary script |
+| [`eee_sim/`](eee_sim/) | The EEE side's Simulink builder (not yet running, see Part 5), the CSE side's Python port that reproduces the same math, a HOMER-hour-driven scenario runner, the HOMER economic-optimization summary script, the EEE-to-CSE bridge test, and the cost-uncertainty Monte Carlo |
 | [`figures/`](figures/) | 10 sub-folders of plots — EDA, robustness, forecasting, compliance, EEE simulation, synthetic-data EDA, plus Part 6's anomaly / disturbance / xai |
 | [`results/`](results/) | Every metric computed as a CSV — model accuracies, McNemar p-values, robustness margins, forecasting RMSE, anomaly-detection and disturbance-classifier scores, etc. |
 | [`models/`](models/) | Trained model checkpoints (`.pkl` for sklearn, `.pt` for PyTorch). Gitignored — regenerate by rerunning the scripts. |
@@ -135,6 +135,8 @@ python src/forecasting.py                        # LSTM / GRU / MLP forecasting
 python eee_sim/microgrid_pq_twin.py              # THD 27% -> 2% demo
 python eee_sim/microgrid_pq_twin_scenarios.py    # same twin driven by real HOMER hours
 python eee_sim/homer_economic_optimization.py    # HOMER's own NPC/COE optimization table
+python eee_sim/twin_to_cse_bridge.py             # feeds twin waveforms through the real CSE classifier (run disturbance_classifier.py first)
+python eee_sim/sensitivity_analysis.py 200       # cost uncertainty (90% CI, not just a point estimate)
 
 # Power-quality disturbance + cyber-resilience pipeline (Part 6)
 python src/anomaly_detection.py         # Isolation Forest fault detection + threshold tuning
@@ -511,6 +513,67 @@ by roughly 4×. Unlike `economic_cost_BDT` in the Part 6 dataset (a
 disputed per-row formula) or even this twin's own assumed-parameter
 cost model, these numbers come directly from HOMER's optimizer.
 
+### Closing the loop: EEE twin → CSE classifier
+
+**File:** [`eee_sim/twin_to_cse_bridge.py`](eee_sim/twin_to_cse_bridge.py)
+Until now the EEE physics simulation and the CSE ML pipeline ran on
+completely unrelated data with no interaction, despite the proposal's
+title promising an integrated "digital twin." This closes that gap:
+it injects four kinds of event into the electrical-level twin — None,
+Harmonic_Distortion, Voltage_Sag, Combined_Weather_Electrical, the
+same four classes Part 6's disturbance dataset uses — extracts the
+same 10-feature vector, and asks the RF classifier from
+[`src/disturbance_classifier.py`](src/disturbance_classifier.py)
+(trained entirely on real Jamalpur field data, never on anything
+simulated) to classify the physics-simulated waveform.
+
+**First attempt: 25% accuracy — the classifier just predicted "None"
+every time.** Diagnosis: `plant_step` assumes an ideal, zero-impedance
+voltage source, so `THD_voltage_pct` came out exactly 0.0 for every
+simulated case, no matter the scenario — but real Jamalpur data shows
+`THD_voltage_pct` is the single biggest discriminator between
+Harmonic_Distortion (mean 11.3%) and Voltage_Sag (mean 2.9%). A
+zero-impedance source is structurally incapable of producing that
+signal. Also found and fixed a real bug: the sag-scenario analysis
+window was sampling *after* the sag had already ended.
+
+**Fix:** added a standard textbook inductive source reactance
+(`X_h = h · X1`, i.e. harmonic impedance scales linearly with harmonic
+order) on top of `plant_step`, applied only inside this bridge script
+so every other script's already-committed results are untouched. Also
+recalibrated the harmonic-injection amplitude to real Jamalpur THD
+magnitudes per scenario (baseline ~3%, disturbance ~7-9%) instead of
+the uncalibrated default's 27% — same 6-pulse harmonic-order shape
+(physically justified), rescaled severity to match observed field
+values instead of an invented curve.
+
+**Result after the fix: 93% accuracy** (100 simulated cases, 25 per
+class) — Harmonic_Distortion and None both 100% F1, Voltage_Sag 88%,
+Combined_Weather_Electrical 84%. The Isolation Forest anomaly detector
+(also trained only on real data) flags 96-100% of disturbed simulated
+cases vs. 28% of normal ones. `X1` (the assumed source reactance) is
+itself an unmeasured parameter — same epistemic status as `cost_kWh`
+and `base_fade` below, worth stating as an assumption in the paper,
+not a measured grid property. Full per-feature domain-shift numbers
+in [`results/twin_to_cse_bridge_domain_shift.csv`](results/).
+
+### Cost uncertainty (not just a point estimate)
+
+**File:** [`eee_sim/sensitivity_analysis.py`](eee_sim/sensitivity_analysis.py)
+The twin's cost projection depends on two assumed, uncited parameters
+(`cost_kWh` = 24,000 BDT/kWh, `base_fade` = 8×10⁻⁷ SoH/kWh
+throughput). Reporting a single deterministic number from those
+implies false precision — the CSE side already reports every accuracy
+number as mean ± std over 5 seeds with bootstrap CIs, and the EEE side
+had no equivalent treatment until now. A 200-run Monte Carlo with both
+parameters perturbed ±20% gives:
+
+- Point estimate: 26,955 BDT/yr
+- Monte Carlo mean: 26,871 BDT/yr, std: 4,279 BDT/yr
+- **90% interval: [19,623 – 34,171] BDT/yr**
+
+Report the interval in the paper, not just the point estimate.
+
 ---
 
 ## Part 6 — Cyber-resilience, disturbance prediction & explainability
@@ -734,6 +797,17 @@ Honest note on the gaps:
   HOMER hourly simulation (8,760 rows) and optimization results are
   real HOMER Pro output — see Part 5. Still missing: the Simulink
   electromagnetic-transient model itself.
+- ~~EEE and CSE sides are disconnected pipelines~~ — **done.** See
+  Part 5's "Closing the loop" section:
+  [`eee_sim/twin_to_cse_bridge.py`](eee_sim/twin_to_cse_bridge.py)
+  feeds EEE-simulated waveforms through the CSE classifier trained
+  only on real data - 93% sim-to-real accuracy after fixing a real
+  zero-source-impedance modeling gap the test itself surfaced.
+- ~~No uncertainty quantification on the EEE side~~ — **done.** See
+  Part 5's "Cost uncertainty" section:
+  [`eee_sim/sensitivity_analysis.py`](eee_sim/sensitivity_analysis.py)
+  reports a 90% CI on the cost projection instead of one deterministic
+  number.
 
 ---
 
