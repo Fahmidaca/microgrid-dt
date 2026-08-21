@@ -760,10 +760,12 @@ Honest note on the gaps:
   hourly/optimization data (see Part 5), not Simulink specifically.
 - **Class-weighted forecasting.** The forecasting pipeline needs
   either a class-weighted MSE loss or a reformulation as a binary
-  breach classifier to make the early-warning F1 meaningful.
+  breach classifier to make the early-warning F1 meaningful. (Parts
+  1-4 thread, not a blocker for the ICCIT submission.)
 - **Statistical significance for the forecasting numbers.** Right now
   only point estimates are reported. Multi-seed + bootstrap CI is the
-  fix — same treatment as the UCI baselines.
+  fix — same treatment as the UCI baselines. (Parts 1-4 thread, not a
+  blocker for the ICCIT submission.)
 - ~~Reproducibility audit.~~ — **done (2026-08-21).** Every pipeline
   in this README (UCI, synthetic-data, Part 6, both EEE scripts) was
   run end-to-end from a clean environment. Found and fixed two real
@@ -775,21 +777,39 @@ Honest note on the gaps:
   reproduces everything in this README.
 - **Physical validation from the EEE side.** The Simulink builder
   reproduces the expected THD suppression, but a formal reproduction
-  of Schafer 2016 is not done.
-- **Paper draft.** Structure is in
-  [`PAPER_OUTLINE.md`](PAPER_OUTLINE.md); the LaTeX manuscript itself
-  is not written yet.
+  of Schafer 2016 is not done. (Note: this item belongs to the Parts
+  1-4 / tau-robustness paper thread, not the ICCIT Part 5-6 submission
+  — not a blocker for the paper in `paper/ICCIT2026_draft.tex`.)
+- ~~Paper draft.~~ — **started (2026-08-21).**
+  [`PAPER_OUTLINE.md`](PAPER_OUTLINE.md) is the outline for a
+  *different* paper (the tau-robustness margin work, Parts 1-4,
+  targeting a Q1 journal) — it does not cover Part 6's proposal
+  ("Cyber-Resilient, Explainable Digital Twin...") at all. The actual
+  ICCIT 2026 draft is
+  [`paper/ICCIT2026_draft.tex`](paper/ICCIT2026_draft.tex): full
+  section structure, every headline number pulled from a committed,
+  re-runnable script, honest caveats stated inline rather than
+  hidden. Not compile-tested (no LaTeX toolchain was available when it
+  was written) and Section II (Related Work) and the author block are
+  deliberately left as stubs — no citations were invented. Compile it,
+  fix any issues, add real citations and author names before
+  submitting.
+- **`economic_cost_BDT` — resolved by decision, not by formula.** Its
+  underlying column, `battery_degradation_rate`, has no documented
+  time/unit basis (per-hour? per-reading? cumulative?), so any
+  "properly re-derived" cost formula built on it would just be another
+  arbitrary constant — the exact problem being fixed. Decision: do not
+  use `economic_cost_BDT` as a modeling target at all. Part 5's twin
+  cost model (with a 90% CI, see "Cost uncertainty") and HOMER's own
+  optimization table are both provenance-clean and used instead. Ask
+  the teammate who supplied the dataset what units/timebase
+  `battery_degradation_rate` is in, alongside the Jamalpur handoff-doc
+  request already in progress.
 - ~~Resolve the Part 6 dataset's origin~~ — **done.** Team confirmed
   Jamalpur field origin for the electrical readings; see Part 6's
   honesty note and [`docs/DATA_PROVENANCE_AND_QUALITY.md`](docs/DATA_PROVENANCE_AND_QUALITY.md)
-  for the per-column writeup.
-- **Re-derive `economic_cost_BDT` properly.** Right now it's a fixed
-  linear rescale of `battery_degradation_rate` already in the dataset
-  (see Part 6), so it can't be used as an independent target to
-  validate a cost model against. Needs an explicit tariff +
-  replacement-cost formula instead. In the meantime, Part 5's HOMER
-  optimization table is a legitimate, independent cost result and
-  doesn't have this problem.
+  for the per-column writeup. A handoff-document request is in
+  progress (as of 2026-08-21) for further independent confirmation.
 - ~~Visualization dashboard~~ — **done**, see Part 6's
   [`src/dashboard.py`](src/dashboard.py) (`streamlit run src/dashboard.py`,
   smoke-tested 2026-08-21).
