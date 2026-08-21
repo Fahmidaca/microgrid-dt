@@ -1,11 +1,11 @@
 model_A,model_B,"A_wins (A right, B wrong)","B_wins (B right, A wrong)",p_raw,p_holm,significant_005
 LogReg,RF,332,1398,0.0,0.0,True
-LogReg,HistGB,228,1550,0.0,0.0,True
+LogReg,HistGB,224,1573,0.0,0.0,True
 LogReg,MLP,193,1648,0.0,0.0,True
-LogReg,XGBoost,240,1529,0.0,0.0,True
-RF,HistGB,128,384,0.0,0.0,True
+LogReg,XGBoost,231,1529,0.0,0.0,True
+RF,HistGB,121,404,0.0,0.0,True
 RF,MLP,200,589,0.0,0.0,True
-RF,XGBoost,129,352,0.0,0.0,True
-HistGB,MLP,206,339,0.0,0.0,True
-HistGB,XGBoost,136,103,0.038461,0.038461,True
-MLP,XGBoost,382,216,0.0,0.0,True
+RF,XGBoost,118,350,0.0,0.0,True
+HistGB,MLP,215,321,6e-06,1.2e-05,True
+HistGB,XGBoost,154,103,0.001815,0.001815,True
+MLP,XGBoost,369,212,0.0,0.0,True

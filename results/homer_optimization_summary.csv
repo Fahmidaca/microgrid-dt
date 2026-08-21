@@ -1,0 +1,4 @@
+Architecture,PV_kW,WT_count,FC_kW,BESS_kWh_units,Electrolyzer_kW,NPC_USD,COE_USD_per_kWh,OpCost_USD_per_yr,CapitalCost_USD,RenewableFraction_pct
+Config 1,465.0,23.0,80,19,150,501599.8,0.02775786,6156.434,419463.7,81.39437
+Config 2,,15.0,80,10,150,736616.8,0.0671429,38536.89,222476.5,53.29265
+Config 3,,,80,24,150,1120089.0,0.1032018,72852.07,148132.5,0.0

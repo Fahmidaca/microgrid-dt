@@ -16,9 +16,11 @@ data/raw/*
 !data/raw/uci_grid/
 !data/raw/uci_grid/**
 
-# --- Trained models (regenerate via src/baselines.py / compliance_classifier.py) ---
+# --- Trained models (regenerate via src/baselines.py / compliance_classifier.py / forecasting.py) ---
 models/*.pkl
 models/**/*.pkl
+models/*.pt
+models/**/*.pt
 
 # --- OS / IDE ---
 .DS_Store

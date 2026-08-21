@@ -149,7 +149,7 @@ def main(n_samples_per_class: int = 200) -> None:
     fig, ax = plt.subplots(figsize=(8, 4.5))
     models = df_margins["model"].unique()
     data = [df_margins.loc[df_margins.model == m, "margin"].values for m in models]
-    bp = ax.boxplot(data, labels=models, patch_artist=True)
+    bp = ax.boxplot(data, tick_labels=models, patch_artist=True)
     for patch, col in zip(bp["boxes"],
                           ["#264653", "#2a9d8f", "#e9c46a", "#f4a261", "#e76f51"]):
         patch.set_facecolor(col)

@@ -337,7 +337,7 @@ def make_plots(df: pd.DataFrame) -> None:
     scenarios = df.operating_scenario.unique()
     data = [df.loc[df.operating_scenario == s, "V_THD_pct"].values
             for s in scenarios]
-    bp = ax.boxplot(data, labels=scenarios, patch_artist=True)
+    bp = ax.boxplot(data, tick_labels=scenarios, patch_artist=True)
     palette = plt.cm.viridis(np.linspace(0.1, 0.9, len(scenarios)))
     for patch, c in zip(bp["boxes"], palette):
         patch.set_facecolor(c)

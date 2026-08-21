@@ -45,9 +45,14 @@ The CSE side has built four separate ML pipelines so far:
    columns are team-calculated rather than measured — see Part 6
    before using `economic_cost_BDT` as an independent target.
 
-Alongside these, the EEE side's Simulink script is in `eee_sim/`, and
-the CSE side wrote a runnable Python port of it that reproduces the
-headline result: **THD 27% → 2%** when the Active Power Filter turns on.
+Alongside these, the EEE side's Simulink builder is in `eee_sim/` — as
+of the 2026-08-21 team meeting it has not been successfully run
+(license/file-size issues), so it has not independently validated
+anything yet. The CSE side wrote a runnable, numpy-only Python port of
+the same physics that does run end-to-end and produces the headline
+result: **THD 27% → 2%** when the Active Power Filter turns on. Treat
+this as one working implementation, not a cross-validated one, until
+the Simulink model actually runs.
 
 Everything is on GitHub at
 **https://github.com/Fahmidaca/microgrid-dt-1**.
@@ -92,9 +97,9 @@ ones.
 | [`src/`](src/) | All the Python — 13 scripts covering data loading, EDA, baselines, statistics, robustness, synthetic-data generation, compliance classifier, forecasting, anomaly detection, disturbance prediction, explainability, and the interactive dashboard |
 | [`data/raw/uci_grid/`](data/raw/uci_grid/) | UCI Grid Stability CSV (10k rows, downloaded automatically by the loader) |
 | [`data/synthetic/`](data/synthetic/) | The synthetic Bangladesh microgrid dataset (50k rows, .csv + .parquet) — see the strong "do not publish on this" warning in that folder's README |
-| [`data/external/`](data/external/) | The Part 6 power-quality disturbance dataset (5k rows, field-measured at Jamalpur per team confirmation). Two columns are team-calculated, not measured — see Part 6 and [`docs/DATA_PROVENANCE_AND_QUALITY.md`](docs/DATA_PROVENANCE_AND_QUALITY.md) before citing `economic_cost_BDT`. |
+| [`data/external/`](data/external/) | The Part 6 power-quality disturbance dataset (5k rows, field-measured at Jamalpur per team confirmation) plus two real HOMER Pro exports used in Part 5: `homer_hourly_simulation.csv` (8,760-row annual hourly simulation) and `homer_npc_coe_optimization.csv` (HOMER's own 3-architecture NPC/COE optimization table). Two columns of the disturbance dataset are team-calculated, not measured — see Part 6 and [`docs/DATA_PROVENANCE_AND_QUALITY.md`](docs/DATA_PROVENANCE_AND_QUALITY.md) before citing `economic_cost_BDT`. |
 | [`docs/`](docs/) | [`CSE_WORK_SUMMARY.md`](docs/CSE_WORK_SUMMARY.md) — a CSE-only walkthrough of everything in this section, plus the `data/external/` provenance investigation write-up and the original teammate scripts it was based on |
-| [`eee_sim/`](eee_sim/) | The EEE side's Simulink builder + the CSE side's Python port that reproduces the same math |
+| [`eee_sim/`](eee_sim/) | The EEE side's Simulink builder (not yet running, see Part 5), the CSE side's Python port that reproduces the same math, a HOMER-hour-driven scenario runner, and the HOMER economic-optimization summary script |
 | [`figures/`](figures/) | 10 sub-folders of plots — EDA, robustness, forecasting, compliance, EEE simulation, synthetic-data EDA, plus Part 6's anomaly / disturbance / xai |
 | [`results/`](results/) | Every metric computed as a CSV — model accuracies, McNemar p-values, robustness margins, forecasting RMSE, anomaly-detection and disturbance-classifier scores, etc. |
 | [`models/`](models/) | Trained model checkpoints (`.pkl` for sklearn, `.pt` for PyTorch). Gitignored — regenerate by rerunning the scripts. |
@@ -128,6 +133,8 @@ python src/forecasting.py                        # LSTM / GRU / MLP forecasting
 
 # EEE physics simulation (Python port of the MATLAB Simulink model)
 python eee_sim/microgrid_pq_twin.py              # THD 27% -> 2% demo
+python eee_sim/microgrid_pq_twin_scenarios.py    # same twin driven by real HOMER hours
+python eee_sim/homer_economic_optimization.py    # HOMER's own NPC/COE optimization table
 
 # Power-quality disturbance + cyber-resilience pipeline (Part 6)
 python src/anomaly_detection.py         # Isolation Forest fault detection + threshold tuning
@@ -432,7 +439,9 @@ Pipeline: PV + weather → 6-pulse rectifier harmonic signature →
 SRF (synchronous reference frame) Active Power Filter → FFT-based
 THD analyzer → battery-degradation twin with Bangladesh Taka cost.
 
-**Headline result** (validated by both MATLAB and Python):
+**Headline result** (from the Python port; the Simulink model has not
+yet been run successfully, so this is not cross-validated — see the
+note in Part 5 below):
 
 - **THD_i drops from 27.13% to 2.07%** the instant the APF turns on
   (well below IEEE 519's 5% limit).
@@ -441,6 +450,66 @@ THD analyzer → battery-degradation twin with Bangladesh Taka cost.
 Four plots in [`figures/eee_sim/`](figures/eee_sim/) show the
 turn-on transient, the THD time series, battery degradation, and
 the harmonic spectrum before vs after the APF activates.
+
+### Honesty note — Simulink status (2026-08-21)
+
+At the 2026-08-21 team meeting the EEE side reported the Simulink
+model (`build_microgrid_pq_digital_twin.m`) has not run successfully
+— the `.slx` file is large and has not opened cleanly. The supervisor
+redirected the team to a Python/Anaconda-based simulation instead.
+That already exists: `microgrid_pq_twin.py` is a from-scratch numpy
+reimplementation of the same physics (not a wrapper around Simulink),
+runs on plain Python 3.10+, and is what actually produces every
+number in this section. Until the Simulink model runs, don't describe
+these results as "validated by both tools" — there is one working
+implementation right now, not two independent ones.
+
+### HOMER-driven scenario analysis
+
+**File:** [`eee_sim/microgrid_pq_twin_scenarios.py`](eee_sim/microgrid_pq_twin_scenarios.py)
+Drives the same electrical-level twin with real operating points
+pulled from a HOMER Pro annual hourly simulation
+([`data/external/homer_hourly_simulation.csv`](data/external/),
+8,760 rows) instead of one arbitrary demo timeline. It picks three
+hours matching the proposal's three test scenarios — peak-load hour
+(harmonic distortion), the hour with the sharpest renewable-output
+drop (voltage sag), and a low-solar/high-wind/high-load hour
+(combined weather-electrical) — and re-runs the APF/THD pipeline at
+each.
+
+**Honest finding:** THD suppression comes back identical (27.13% →
+2.07%) at all three operating points. This is not a bug — in this
+model, harmonic content is a fixed *percentage* of the fundamental
+current, so THD is mathematically scale-invariant to how heavily
+loaded the system is. Only the projected cost differs meaningfully
+across the three hours (driven by how much sunlight each hour had,
+not by THD or load). Read this as "the APF's suppression is robust
+across the annual operating envelope" plus "cost varies with solar
+throughput" — not as the three scenarios differing in power-quality
+severity, since in this model they don't. The idealized 6-pulse
+rectifier model doesn't capture load-dependent harmonic variation;
+that would need a source-impedance/commutation-reactance term with a
+citable physical basis, not an invented curve.
+
+### HOMER system-level cost optimization
+
+**File:** [`eee_sim/homer_economic_optimization.py`](eee_sim/homer_economic_optimization.py)
+Reads HOMER Pro's own optimization results
+([`data/external/homer_npc_coe_optimization.csv`](data/external/)) —
+a real techno-economic comparison of three candidate system
+architectures, not an estimated or derived column. This is the
+strongest cost evidence in the project:
+
+| Architecture | PV | Wind turbines | Fuel cell | Renewable fraction | Cost of energy | Net present cost |
+|---|---|---|---|---|---|---|
+| Config 1 | 465 kW | 23 | 80 kW | 81.4% | **$0.0278/kWh** | $501,600 |
+| Config 2 | — | 15 | 80 kW | 53.3% | $0.0671/kWh | $736,617 |
+| Config 3 | — | — | 80 kW | 0% | $0.1032/kWh | $1,120,089 |
+
+Going from 0% to 81.4% renewable penetration cuts the cost of energy
+by roughly 4×. Unlike `economic_cost_BDT` in the Part 6 dataset (a
+disputed per-row formula) or even this twin's own assumed-parameter
+cost model, these numbers come directly from HOMER's optimizer.
 
 ---
 
@@ -620,17 +689,27 @@ Full numbers and the original investigation are in
 
 Honest note on the gaps:
 
-- **Real data from the EEE side.** The IEEE 14-bus Simulink model
-  producing actual `.slx` outputs. All synthetic-data results need to
-  be re-run on that before the paper submission.
+- **Real data from the EEE side.** As of the 2026-08-21 meeting, the
+  Simulink model still hasn't run (file-size/license issues) and the
+  supervisor has redirected the team to Python-based simulation
+  instead of chasing `.slx` output — see Part 5's honesty note. The
+  Python port already covers this; the open item is now the HOMER
+  hourly/optimization data (see Part 5), not Simulink specifically.
 - **Class-weighted forecasting.** The forecasting pipeline needs
   either a class-weighted MSE loss or a reformulation as a binary
   breach classifier to make the early-warning F1 meaningful.
 - **Statistical significance for the forecasting numbers.** Right now
   only point estimates are reported. Multi-seed + bootstrap CI is the
   fix — same treatment as the UCI baselines.
-- **Reproducibility audit.** UCI side has one; the synthetic-data
-  side does not yet.
+- ~~Reproducibility audit.~~ — **done (2026-08-21).** Every pipeline
+  in this README (UCI, synthetic-data, Part 6, both EEE scripts) was
+  run end-to-end from a clean environment. Found and fixed two real
+  bugs in the process: `ax.boxplot(labels=...)` was removed in
+  matplotlib 3.11 (renamed to `tick_labels`, broke `robustness.py` and
+  `generate_synthetic_dataset.py`), and `torch` was missing from
+  `requirements.txt` even though `forecasting.py` requires it. Both
+  fixed; a clean `pip install -r requirements.txt` now actually
+  reproduces everything in this README.
 - **Physical validation from the EEE side.** The Simulink builder
   reproduces the expected THD suppression, but a formal reproduction
   of Schafer 2016 is not done.
@@ -645,9 +724,16 @@ Honest note on the gaps:
   linear rescale of `battery_degradation_rate` already in the dataset
   (see Part 6), so it can't be used as an independent target to
   validate a cost model against. Needs an explicit tariff +
-  replacement-cost formula instead.
+  replacement-cost formula instead. In the meantime, Part 5's HOMER
+  optimization table is a legitimate, independent cost result and
+  doesn't have this problem.
 - ~~Visualization dashboard~~ — **done**, see Part 6's
-  [`src/dashboard.py`](src/dashboard.py) (`streamlit run src/dashboard.py`).
+  [`src/dashboard.py`](src/dashboard.py) (`streamlit run src/dashboard.py`,
+  smoke-tested 2026-08-21).
+- ~~EEE-side real annual operating data~~ — **partially done.** The
+  HOMER hourly simulation (8,760 rows) and optimization results are
+  real HOMER Pro output — see Part 5. Still missing: the Simulink
+  electromagnetic-transient model itself.
 
 ---
 
