@@ -236,12 +236,17 @@ def run():
     print(classification_report(y_true, y_pred))
 
     cm_labels = scenarios
-    fig, ax = plt.subplots(figsize=(6, 5.5))
-    ConfusionMatrixDisplay.from_predictions(
-        y_true, y_pred, labels=cm_labels, ax=ax, xticks_rotation=30, colorbar=False)
-    ax.set_title("CSE classifier (trained on real Jamalpur data)\napplied to EEE twin simulations")
+    fig, ax = plt.subplots(figsize=(7.5, 6.5))
+    disp = ConfusionMatrixDisplay.from_predictions(
+        y_true, y_pred, labels=cm_labels, ax=ax, xticks_rotation=45, colorbar=False,
+        text_kw={"fontsize": 14})
+    ax.set_title("CSE classifier (trained on real Jamalpur data)\napplied to EEE twin simulations",
+                  fontsize=13)
+    ax.set_xlabel("Predicted label", fontsize=12)
+    ax.set_ylabel("True label", fontsize=12)
+    ax.tick_params(labelsize=11)
     plt.tight_layout()
-    plt.savefig(FIG_DIR / "07_bridge_confusion_matrix.png", dpi=150)
+    plt.savefig(FIG_DIR / "07_bridge_confusion_matrix.png", dpi=150, bbox_inches="tight")
     plt.close()
 
     # --- anomaly detector: does it flag disturbed windows more than baseline? ---

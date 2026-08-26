@@ -310,15 +310,21 @@ def run(P: Params | None = None) -> pd.DataFrame:
         post_X = np.abs(np.fft.fft(post_win))[:Nfft // 2] * (2 / Nfft)
         freqs  = np.fft.fftfreq(Nfft, P.Ts)[:Nfft // 2]
         fig, ax = plt.subplots(figsize=(10, 4))
-        ax.stem(freqs, pre_X,  linefmt="#e76f51", markerfmt=" ",
-                basefmt=" ", label="Before APF")
-        ax.stem(freqs, post_X, linefmt="#264653", markerfmt=" ",
-                basefmt=" ", label="After APF")
+        _, stem1, _ = ax.stem(freqs, pre_X, linefmt="#e76f51", markerfmt=" ",
+                               basefmt=" ", label="Before APF")
+        _, stem2, _ = ax.stem(freqs, post_X, linefmt="#264653", markerfmt=" ",
+                               basefmt=" ", label="After APF")
+        plt.setp(stem1, linewidth=3.5)
+        plt.setp(stem2, linewidth=3.5)
         ax.set_xlim(0, 1500)
-        ax.set_xlabel("Frequency (Hz)"); ax.set_ylabel("Amplitude (A)")
-        ax.set_title("Source-current spectrum: APF effect on 5th, 7th, 11th, 13th harmonics")
-        ax.grid(alpha=0.3); ax.legend()
-        plt.tight_layout(); plt.savefig(FIG_DIR / "04_spectrum_before_after.png", dpi=150)
+        ax.set_xlabel("Frequency (Hz)", fontsize=12)
+        ax.set_ylabel("Amplitude (A)", fontsize=12)
+        ax.set_title("Source-current spectrum: APF effect on 5th, 7th, 11th, 13th harmonics",
+                      fontsize=13)
+        ax.tick_params(labelsize=11)
+        ax.grid(alpha=0.3); ax.legend(fontsize=11)
+        plt.tight_layout()
+        plt.savefig(FIG_DIR / "04_spectrum_before_after.png", dpi=150, bbox_inches="tight")
         plt.close()
 
     # =====================================================================

@@ -51,7 +51,7 @@
 \usepackage{graphicx}
 \usepackage{textcomp}
 \usepackage{booktabs}
-\usepackage{xcolor}
+\usepackage[table]{xcolor}
 \usepackage[colorlinks=true,linkcolor=black,citecolor=black,urlcolor=blue]{hyperref}
 
 \begin{document}
@@ -244,19 +244,27 @@ injecting the characteristic non-triplen harmonic set (5th, 7th,
 an FFT-based THD analyzer (5-cycle windows, 10~kHz solver rate). The
 filter suppresses source-current THD from 27.13\% to 2.07\% within
 one cycle of activation, inside the IEEE~519 5\% limit
-(Fig.~\ref{fig:spectrum}). Three representative operating points
-drawn from the HOMER annual simulation -- peak load, sharpest
-renewable drop, and low-solar/high-wind/high-load -- all suppress to
-the same THD level (an expected consequence of the harmonic model's
-fixed percentage-of-fundamental structure, reported as suppression
-\emph{robustness}), while projected battery cost varies by an order
-of magnitude across the same three hours.
+(Figs.~\ref{fig:spectrum}--\ref{fig:thdtime}). Three representative
+operating points drawn from the HOMER annual simulation -- peak load,
+sharpest renewable drop, and low-solar/high-wind/high-load -- all
+suppress to the same THD level (an expected consequence of the
+harmonic model's fixed percentage-of-fundamental structure, reported
+as suppression \emph{robustness}), while projected battery cost
+varies by an order of magnitude across the same three hours.
 
 \begin{figure}[t]
 \centerline{\includegraphics[width=\linewidth]{figs/fig1_spectrum.png}}
 \caption{Source-current spectrum before/after Active Power Filter
 activation (5th, 7th, 11th, 13th harmonics).}
 \label{fig:spectrum}
+\end{figure}
+
+\begin{figure}[t]
+\centerline{\includegraphics[width=\linewidth]{figs/fig8_thd_timeseries.png}}
+\caption{THD$_i$/THD$_v$ vs.\ time: the same suppression event as
+Fig.~\ref{fig:spectrum}, shown in the time domain, with the
+voltage-sag window and IEEE 519 limit marked.}
+\label{fig:thdtime}
 \end{figure}
 
 \subsection{Cyber-Resilient Anomaly Detection}
@@ -280,8 +288,9 @@ a by-construction-random null control.}
 \subsection{Disturbance Prediction and Explainability}
 A four-class Random Forest (None / Voltage\_Sag / Harmonic\_Distortion
 / Combined\_Weather\_Electrical) on ten electrical/weather features
-reaches 99.7\% held-out accuracy (99.26\% mean over five seeds). SHAP
-analysis (Fig.~\ref{fig:shap}) shows \texttt{voltage\_rms\_V}
+reaches 99.7\% held-out accuracy (99.26\% mean over five seeds,
+Fig.~\ref{fig:distcm}). SHAP analysis (Fig.~\ref{fig:shap}) shows
+\texttt{voltage\_rms\_V}
 dominates Voltage\_Sag predictions and \texttt{THD\_voltage\_pct} /
 harmonic-order features dominate Harmonic\_Distortion predictions --
 consistent with each disturbance's physical mechanism, not a
@@ -290,6 +299,13 @@ surfaces the classifier's prediction, the anomaly-detector's flag, and
 per-feature SHAP attribution together for a single reading, so a
 non-technical operator can inspect \emph{why} a prediction was made,
 not just what it was.
+
+\begin{figure}[t]
+\centerline{\includegraphics[width=\linewidth]{figs/fig9_disturbance_confusion.png}}
+\caption{Disturbance classifier confusion matrix on held-out real
+Jamalpur data (test accuracy 0.997).}
+\label{fig:distcm}
+\end{figure}
 
 \begin{figure}[t]
 \centerline{\includegraphics[width=\linewidth]{figs/fig3_shap.png}}
@@ -326,12 +342,12 @@ every real value) raised accuracy to \textbf{93\%}
 anomaly detector flagging 96--100\% of simulated disturbed cases
 vs.\ 28\% of normal ones.
 
-\begin{figure*}[t]
-\centerline{\includegraphics[width=0.55\textwidth]{figs/fig4_bridge_confusion.png}}
+\begin{figure}[t]
+\centerline{\includegraphics[width=\linewidth]{figs/fig4_bridge_confusion.png}}
 \caption{Confusion matrix: classifier trained only on real data,
 evaluated on physics-simulated waveforms.}
 \label{fig:bridge}
-\end{figure*}
+\end{figure}
 
 \subsection{Cost Quantification}
 \label{sec:cost}
@@ -354,22 +370,24 @@ assumed-parameter space (right).}
 \label{fig:sensitivity}
 \end{figure*}
 
-\begin{table*}[t]
+\begin{table}[t]
 \centering
+\footnotesize
 \caption{HOMER optimization: three candidate architectures}
 \label{tab:homer}
 \begin{tabular}{|l|c|c|c|}
 \hline
-\textbf{Config} & \textbf{Renewable Frac.} & \textbf{COE (\$/kWh)} & \textbf{NPC (\$)} \\
+\rowcolor{gray!20}
+\textbf{Config} & \textbf{RE Frac.} & \textbf{COE (\$/kWh)} & \textbf{NPC (\$)} \\
 \hline
-1 (PV+WT+FC+BESS) & 81.4\% & 0.0278 & 501{,}600 \\
+1: PV+WT+FC+BESS & 81.4\% & 0.0278 & 501{,}600 \\
 \hline
-2 (WT+FC+BESS)     & 53.3\% & 0.0671 & 736{,}617 \\
+2: WT+FC+BESS     & 53.3\% & 0.0671 & 736{,}617 \\
 \hline
-3 (FC+BESS only)   & 0.0\%  & 0.1032 & 1{,}120{,}089 \\
+3: FC+BESS only   & 0.0\%  & 0.1032 & 1{,}120{,}089 \\
 \hline
 \end{tabular}
-\end{table*}
+\end{table}
 
 \subsection{External Validation}
 \label{sec:external-validation}
@@ -400,19 +418,21 @@ each, showing continuous variability absent any scripted event.}
 Table~\ref{tab:summary} consolidates the headline results; each is
 generated by a committed, re-runnable script.
 
-\begin{table*}[t]
+\begin{table}[t]
 \centering
+\footnotesize
 \caption{Headline results}
 \label{tab:summary}
-\begin{tabular}{|p{9cm}|c|}
+\begin{tabular}{|p{4.6cm}|c|}
 \hline
+\rowcolor{gray!20}
 \textbf{Result} & \textbf{Section} \\
 \hline
 THD$_i$: 27.13\% $\to$ 2.07\% & \ref{sec:twin} \\
 \hline
 Disturbance classifier: 99.7\% acc. & III-D \\
 \hline
-Anomaly detector: ROC-AUC 0.70 vs.\ 0.50 (null control) & III-B \\
+Anomaly detector: ROC-AUC 0.70 vs.\ 0.50 (null) & III-B \\
 \hline
 Sim-to-real bridge: 93\% acc. & \ref{sec:bridge} \\
 \hline
@@ -420,10 +440,10 @@ Cost: 26{,}955 BDT/yr, 90\% CI [19.6k, 34.2k] & \ref{sec:cost} \\
 \hline
 HOMER: 81.4\% RE $\to$ \$0.0278/kWh & \ref{sec:cost} \\
 \hline
-External V/f check: real std $\approx$0.03\% (f), $\approx$0.5--0.6\% (V) p.u. & \ref{sec:external-validation} \\
+Ext.\ V/f check: std $\approx$0.03\% (f), $\approx$0.5--0.6\% (V) p.u. & \ref{sec:external-validation} \\
 \hline
 \end{tabular}
-\end{table*}
+\end{table}
 
 \section{Discussion and Limitations}
 \label{sec:limitations}
