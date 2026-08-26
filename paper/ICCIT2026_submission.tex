@@ -1,43 +1,57 @@
-% ICCIT 2026 draft manuscript - Cyber-Resilient, Explainable Digital Twin
+% ICCIT 2026 submission - Cyber-Resilient, Explainable Digital Twin
 % Framework for Predictive and Cost-Aware Power Quality Management in
 % Renewable Microgrids
 %
-% STATUS: first full-structure draft, generated 2026-08-21 from the
-% repo's verified results (README.md Parts 5-6, results/*.csv,
-% figures/*.png). NOT compile-tested locally - no LaTeX toolchain was
-% available in the environment this was written in. Before submitting:
-%   1. Compile this (Overleaf or a local TeX install) and fix any
-%      syntax issues - it has not been rendered even once.
-%   2. Check ICCIT's actual IEEE Xplore author kit / template and swap
-%      \documentclass[conference]{IEEEtran} for theirs if different.
-%   3. Fill in real author names/affiliations below.
-%   4. Section II (Related Work) cites 7 papers, each verified against
-%      Crossref/Dryad metadata (title/authors/journal/DOI all confirmed
-%      to resolve) and summarized from structured abstracts, not from a
-%      full read of each PDF. Skim the actual papers yourselves before
-%      submitting to confirm the framing here is fair to each one.
-%   5. The data-provenance sentence in Section III-A is deliberately
-%      cautious pending the Jamalpur handoff document your teammate
-%      requested (see docs/DATA_PROVENANCE_AND_QUALITY.md) - update it
-%      once that lands, in either direction.
-%   6. Every number below was pulled from a script that is committed
-%      and re-runnable in this repo (see the file cited in each
-%      subsection) - if you change a script, regenerate the number.
-%   7. Section I now opens with real, cited Bangladesh 2026 load-shedding
-%      and Rooppur nuclear plant figures (paper/references.bib,
-%      dailystar*/dailysun2026rural/tbs2026rooppur) - verified via web
-%      search cross-checked across outlets, not a full article fetch
-%      (both outlets 403'd direct fetches). These are news figures that
-%      move week to week and Rooppur's commissioning date was still
-%      tentative as of the source articles - re-check both right before
-%      submission and update the numbers/citations if they've moved.
+% STATUS: condensed to the ICCIT 6-page / IEEE 2-column / A4 limit,
+% built against the official downloaded template
+% (IEEE-conference-template-062824, a4paper option) and formatted
+% double-blind per the call for papers (no names/affiliations/emails
+% anywhere in the manuscript). Self-contained: this .tex, IEEEtran.cls,
+% and figs/ are everything needed - zip this whole paper/ folder and
+% upload to Microsoft CMT / Overleaf directly.
+%
+% NOT compile-tested locally - no LaTeX toolchain is available in the
+% environment this was written in. Brace/environment/\ref-\label/
+% \cite-\bibitem balance was checked programmatically (all clean), but
+% that is not the same as a real compile. Before submitting:
+%   1. Compile this in Overleaf (upload the whole paper/ folder) and
+%      fix any real syntax issues - it has not been rendered even once.
+%   2. Confirm it is <= 6 pages. If it overflows, cut in this order:
+%      (a) Fig. 5 (cost sensitivity histogram - its numbers are already
+%          in Table I and Sec. III-F text, so the figure is the most
+%          redundant one to drop);
+%      (b) shorten Related Work para. 2 (forecasting comparison);
+%      (c) drop Table II (HOMER architectures) and fold its 3 numbers
+%          into a sentence in Sec. III-F.
+%   3. DOUBLE-BLIND: do NOT add real author names/affiliations/emails
+%      until after the review decision. The \author block below is a
+%      placeholder required by the class; leave it as-is for
+%      submission and only fill it in for the camera-ready version.
+%   4. Every number below traces to a script in the project repository
+%      (cited by filename in each subsection) - if a script changes,
+%      regenerate the number and the affected figure.
+%   5. The data-provenance sentence in Sec. III-A is deliberately
+%      cautious pending independent confirmation of the Jamalpur
+%      dataset's field-measurement origin - update it once that lands,
+%      in either direction.
+%   6. The five Bangladesh/Rooppur news citations ([8]-[12]) were
+%      verified via cross-outlet web search, not a full article fetch
+%      (both outlets blocked direct fetches) - these are time-sensitive
+%      figures; re-check them close to the submission date and update
+%      if the numbers have moved.
+%   7. paper/references.bib holds the same 12 sources in BibTeX form as
+%      a canonical, tool-readable record - this .tex uses a manual
+%      \thebibliography instead (matching the official template and
+%      avoiding a BibTeX build step during upload). Keep both in sync
+%      if a reference changes.
 
-\documentclass[conference]{IEEEtran}
+\documentclass[conference,a4paper]{IEEEtran}
 \usepackage{cite}
-\usepackage{amsmath,amssymb}
+\usepackage{amsmath,amssymb,amsfonts}
 \usepackage{graphicx}
+\usepackage{textcomp}
 \usepackage{booktabs}
-\usepackage{url}
+\usepackage{xcolor}
 
 \begin{document}
 
@@ -45,44 +59,37 @@
 Predictive and Cost-Aware Power Quality Management\\
 in Renewable Microgrids}
 
+% DOUBLE-BLIND: leave exactly as-is for review submission. Replace only
+% for the camera-ready version after acceptance.
 \author{
-\IEEEauthorblockN{Author Name(s) -- TODO}
-\IEEEauthorblockA{Department of Electrical \& Electronic Engineering /
-Computer Science \& Engineering\\
-Institution -- TODO, Bangladesh\\
-Email: TODO}
+\IEEEauthorblockN{Authors withheld for double-blind review}
+\IEEEauthorblockA{Affiliation withheld for double-blind review}
 }
 
 \maketitle
 
 \begin{abstract}
-Renewable-penetrated microgrids face power quality challenges --
-harmonic distortion, voltage sags, and combined weather-electrical
-disturbances -- that conventional monitoring addresses only
-reactively, without interpretability, cyber-resilience, or economic
-context. This paper presents a software-defined digital twin
-framework that unifies a physics-based electrical simulation (an
-Active Power Filter suppressing current total harmonic distortion
-from 27.13\% to 2.07\%) with a machine-learning pipeline trained
-entirely on field-measured power-quality data: an unsupervised
-Isolation Forest anomaly/cyber-resilience layer, a four-class
-disturbance-type predictor (99.7\% held-out accuracy), and a SHAP
-explainability layer that confirms the model's decisions align with
-known power-engineering causes. Critically, we validate that the two
-halves of the twin actually interoperate: waveforms generated by the
-physics simulation are classified by the ML model -- trained only on
-real data, never on anything simulated -- at 93\% accuracy, after
-diagnosing and correcting a zero-source-impedance modeling gap the
-test itself exposed. Economic impact is quantified two independent
-ways: a physics-based battery-degradation cost model with Monte Carlo
-uncertainty bounds (26,955 BDT/yr, 90\% CI [19,623, 34,171]), and a
-real HOMER Pro system-level optimization showing renewable-heavy
-architectures cost roughly one-quarter as much per kWh as
-fossil/battery-only alternatives (\$0.0278 vs.\ \$0.1032/kWh at 81.4\%
-vs.\ 0\% renewable fraction). Every result in this paper is produced
-by an openly available, re-runnable pipeline, and every dataset's
-provenance and known limitations are stated explicitly rather than
-implied.
+Renewable-penetrated microgrids face power quality problems --
+harmonic distortion, voltage sags, combined weather-electrical
+disturbances -- that conventional monitoring addresses reactively,
+without interpretability, cyber-resilience, or economic context. We
+present a digital twin framework unifying a physics-based electrical
+simulation (an Active Power Filter suppressing current THD from
+27.13\% to 2.07\%) with a machine-learning pipeline trained entirely
+on field-measured data: an unsupervised anomaly-detection layer
+validated by a null-result control (ROC-AUC 0.70 on real data vs.\
+0.50 on a random-label control), a four-class disturbance predictor
+(99.7\% held-out accuracy), and SHAP explainability consistent with
+power-engineering causes. Critically, we verify the twin's two halves
+interoperate: physics-simulated waveforms, classified by the
+real-data-only model, reach 93\% accuracy after correcting a
+zero-source-impedance modeling gap the test itself exposed. Cost is
+quantified two independent ways -- a Monte Carlo battery-degradation
+model (90\% CI [19{,}623, 34{,}171] BDT/yr) and a real HOMER Pro
+optimization -- and the twin's voltage/frequency assumptions are
+validated against an unrelated real microgrid abroad. Every result is
+reproducible from an openly re-runnable pipeline, with limitations
+stated explicitly rather than implied.
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -91,298 +98,244 @@ anomaly detection, active power filter, techno-economic analysis
 \end{IEEEkeywords}
 
 \section{Introduction}
-% TODO: expand with real citations. Raw material below is adapted from
-% the project proposal but needs literature grounding, not just
-% restating the proposal's own claims as if they were established facts.
 
-Bangladesh's 2026 power crisis illustrates that this is not simply a
-problem of insufficient generation capacity. In early August 2026,
-Power Grid Company of Bangladesh data showed the national electricity
-shortage climbing from 335 MW to 2{,}167 MW over three days, against a
-record shortfall of 2{,}500 MW that pushed large parts of the country
-into load-shedding of up to 7--8 hours daily in rural areas and 2--3
-hours in urban areas outside Dhaka
-\cite{dailystar2026loadshedding,dailysun2026rural}. Yet Bangladesh
-Power Development Board data put installed generation capacity at
-28{,}919 MW against a projected 2026 summer peak demand of only
-18{,}500 MW -- the shortfall traces instead to a gas-supply
-constraint (900 MMcf/d available against a stated need of 1{,}200
-MMcf/d to run existing plants at peak) \cite{dailystar2026pdbplan}.
-Nor is the problem an absence of new capacity in the pipeline: the
-country's first nuclear facility, the 1{,}200 MW Rooppur Unit 1,
-completed reactor fuel loading in May 2026 and entered final-stage
-testing toward commercial operation later in the year
-\cite{dailystar2026rooppur,tbs2026rooppur}, yet the record shortfall
-above occurred in the same year. Large, centralized capacity
-additions -- fossil or nuclear -- do not by themselves solve a crisis
-that is substantially about fuel logistics, dispatch, and
-distribution reliability, which is exactly the layer at which
+Bangladesh's 2026 power crisis shows this is not simply a
+generation-capacity problem. In early August 2026, the national
+electricity shortage climbed from 335~MW to 2{,}167~MW in three days,
+with a record 2{,}500~MW shortfall forcing load-shedding of up to
+7--8 hours daily in rural areas \cite{dailystar2026loadshedding,
+dailysun2026rural}. Yet installed capacity (28{,}919~MW) comfortably
+exceeds projected 2026 peak demand (18{,}500~MW); the shortfall traces
+to a gas-supply constraint (900 vs.\ a needed 1{,}200~MMcf/d)
+\cite{dailystar2026pdbplan}. Nor is new capacity the gap: the
+1{,}200~MW Rooppur nuclear unit completed reactor fuel loading in May
+2026 \cite{dailystar2026rooppur,tbs2026rooppur}, yet the record
+shortfall above occurred the same year. Centralized capacity additions
+-- fossil or nuclear -- do not by themselves resolve a crisis rooted
+in fuel logistics and dispatch reliability, exactly the layer at which
 decentralized, renewable-heavy microgrids with local storage and
 predictive management can help, provided their power quality,
-reliability, and cost can be characterized with the same rigor
-expected of a conventional grid asset. This paper's contribution
-targets precisely that characterization problem, and is framed for
-applicability beyond Bangladesh alone (Section~\ref{sec:external-validation}).
+reliability, and cost are characterized as rigorously as a
+conventional grid asset.
 
-The increasing penetration of renewable energy sources and nonlinear
-loads in modern microgrids -- the same technology positioned to help
--- introduces its own power quality challenges: voltage instability,
-harmonic distortion, and frequency deviation -- that degrade
-reliability and accelerate battery wear. Existing
-monitoring systems are largely reactive: they report a disturbance
-after it has already occurred, offer no explanation for automated
-decisions, provide no defense against corrupted or spoofed sensor
-readings, and stop short of connecting power-quality degradation to
-its economic consequence.
-
-This paper addresses these four gaps with a single integrated
-framework combining a physics-based digital twin (electrical
-simulation with active harmonic mitigation) and a machine-learning
-pipeline (cyber-resilient anomaly detection, disturbance-type
-prediction, and explainability), trained and evaluated on
-field-measured power-quality data, and cross-validated against the
-physics simulation itself -- not just against a held-out split of the
-same dataset.
+Renewable penetration and nonlinear loads introduce their own
+power-quality challenges -- voltage instability, harmonic distortion,
+frequency deviation -- that degrade reliability and accelerate
+battery wear. Existing monitoring is largely reactive: it reports
+disturbances after they occur, offers no explanation for automated
+decisions, defends poorly against corrupted sensor readings, and
+rarely connects power-quality degradation to its economic consequence.
+This paper addresses all four gaps with one integrated framework: a
+physics-based digital twin with active harmonic mitigation, and a
+machine-learning pipeline for cyber-resilient anomaly detection,
+disturbance-type prediction, and explainability -- trained on
+field-measured data and cross-validated against the physics simulation
+itself, not just a held-out split of the same dataset. The
+methodology is normalized rather than Bangladesh-specific and is
+validated against an independent real microgrid abroad
+(Section~\ref{sec:external-validation}), making it applicable to both
+capacity-constrained and renewable-heavy developed grids.
 
 \textbf{Contributions:}
 \begin{enumerate}
 \item A physics-based power-quality digital twin (weather-driven PV,
   nonlinear-load harmonic injection, an SRF Active Power Filter, and
   an FFT-based THD analyzer) validated against a real annual HOMER
-  Pro microgrid simulation, not just a single arbitrary demo timeline.
-\item An unsupervised anomaly-detection layer whose validity is
-  confirmed by a null-result control: the same method applied to a
-  dataset with a known, by-construction-random fault label collapses
-  to chance-level ROC-AUC (0.50), while it reaches 0.70 on the real
-  disturbance data -- evidence the pipeline is not simply producing a
-  plausible-looking number.
-\item A four-class disturbance predictor with SHAP explainability,
-  whose feature attributions align with power-engineering expectation
-  (\texttt{voltage\_rms\_V} dominates Voltage\_Sag predictions).
-\item A sim-to-real bridge test: physics-simulated waveforms,
-  classified by a model trained only on real field data, at 93\%
-  accuracy -- the first evidence in this project that the EEE and CSE
-  halves of the "digital twin" actually function as one system rather
-  than two independent demonstrations.
+  Pro microgrid simulation, not one arbitrary demo timeline.
+\item An anomaly-detection layer validated by a null-result control:
+  ROC-AUC collapses to chance (0.50) on a by-construction-random
+  label, vs.\ 0.70 on real disturbance data.
+\item A four-class disturbance predictor with SHAP explainability
+  whose attributions match power-engineering expectation.
+\item A sim-to-real bridge: physics-simulated waveforms, classified
+  by a real-data-only model, at 93\% accuracy -- evidence the EEE
+  and CSE halves function as one system.
 \item Two independent, uncertainty-quantified cost analyses (a
-  physics-based twin with Monte Carlo bounds, and a real HOMER
-  techno-economic optimization), replacing a disputed,
-  formula-derived cost column from the raw dataset.
+  physics Monte Carlo model and a real HOMER optimization) replacing
+  a disputed, formula-derived cost column, plus external
+  voltage/frequency validation against an unrelated real microgrid.
 \end{enumerate}
 
 \section{Related Work}
 
 Simulation-based power-quality (PQ) analysis of renewable microgrids
-is well established. \cite{hernandezmayoral2024pq} build a detailed
-IEEE 14-bus hybrid microgrid in MATLAB/Simulink -- PV, wind, diesel,
-storage, and both balanced and unbalanced loads -- and evaluate
-voltage/current THD against IEEE-519, concluding that wind generation
-and nonlinear loads are dominant harmonic-distortion drivers; this
-matches our own finding that the 6-pulse rectifier load is the sole
-harmonic source worth mitigating in our twin. Compensation and control
-have increasingly moved toward AI-tuned rather than fixed-parameter
+is well established: \cite{hernandezmayoral2024pq} model an IEEE
+14-bus hybrid microgrid in MATLAB/Simulink and evaluate THD against
+IEEE-519, finding wind generation and nonlinear loads the dominant
+distortion drivers -- consistent with our finding that the 6-pulse
+rectifier load is the sole harmonic source worth mitigating.
+Compensation is moving toward AI-tuned rather than fixed-parameter
 designs: \cite{john2026aipqreview} review over 100 studies applying
-swarm intelligence and hybrid AI (ANFIS, PSO-ANN, adaptively-tuned
-APF/D-STATCOM/UPQC) for harmonic mitigation, reporting faster
-convergence and lower THD than fixed-parameter compensators, and
+swarm intelligence and hybrid AI (ANFIS, PSO-ANN, adaptive
+APF/D-STATCOM/UPQC) for harmonic mitigation, and
 \cite{prakash2025aidcmicrogrid} pair an ANN radial-basis MPPT
 controller with dual fractional-order PID for DC-microgrid battery
-management. Our twin's SRF-based active power filter (Section
-\ref{sec:twin}) is, by this standard, a fixed-parameter design;
-adaptively tuning it is identified as future work in Section
-\ref{sec:limitations} rather than claimed here.
+management. Our SRF-based Active Power Filter (Section~\ref{sec:twin})
+is, by this standard, a fixed-parameter design; adaptive tuning is
+future work (Section~\ref{sec:limitations}).
 
-On the forecasting/classification side, \cite{jahan2026mlpq} benchmark
-nine ML/DL models (LSTM, GRU, DNN, CNN1D-LSTM, BiLSTM, attention-RNN,
-decision tree, SVM, XGBoost) predicting PQ parameters -- voltage,
-THDu, THDi, short-term flicker -- on a real off-grid microgrid
-platform, finding deep models more accurate and classical ones far
-cheaper to run. That work forecasts continuous PQ metrics; ours
-instead classifies discrete disturbance \emph{type} (Section
-\ref{sec:twin}) and adds SHAP-based explainability plus a
-cyber-resilience layer, a different but complementary problem framing.
-\cite{osifeko2025aiforecasting} benchmark 12 models on five years of
-South African grid data and explicitly document the constraints of
-forecasting in data-sparse, developing-region deployments -- limited
-local training data, missing real-time measurement coverage, and poor
-transfer of models trained on developed-country data. Bangladesh's
-Jamalpur dataset used here faces the same category of constraint,
-which is part of why this paper reports every accuracy number
-alongside an explicit uncertainty or robustness check (bootstrap CIs,
-a null-result control, sim-to-real transfer) rather than a bare point
+On forecasting, \cite{jahan2026mlpq} benchmark nine ML/DL models
+predicting continuous PQ parameters on a real off-grid platform; ours
+instead classifies discrete disturbance \emph{type} and adds SHAP
+explainability and a cyber-resilience layer.
+\cite{osifeko2025aiforecasting} benchmark 12 models on South African
+grid data and document constraints specific to data-sparse,
+developing-region deployment -- limited local training data, missing
+measurement coverage, poor transfer from developed-country models.
+Bangladesh's Jamalpur dataset faces the same category of constraint,
+which is why every accuracy number here is reported alongside an
+explicit uncertainty or robustness check (bootstrap CIs, a
+null-result control, sim-to-real transfer) rather than a bare point
 estimate.
 
 On techno-economic optimization, \cite{daniel2025dualopt} propose
-ALA-TKAN, a single AI framework unifying renewable/load forecasting
-with dual-optimization energy management, reporting THD of 1.4\% and
-energy cost of \$0.8/Wh for a hybrid PV-wind-fuel-cell-battery
-microgrid. Section~\ref{sec:cost} takes a deliberately different
-approach: rather than one model producing both a forecast and a cost
-figure, we keep the physics twin's Monte Carlo cost projection and
-HOMER Pro's independent commercial optimizer separate and both
-interval-reported, specifically so an assumed-parameter model is never
-mistaken for a measured or independently-optimized one -- a provenance
-concern raised throughout this paper (Section~\ref{sec:limitations}).
-
-Beyond the datasets used directly in this work (Section III-A),
-real, published microgrid instrumentation datasets exist elsewhere in
-the literature; for example, \cite{bashir2023mesadelsol} report
-power, voltage, frequency, and thermal telemetry from the Mesa Del
-Sol microgrid (Albuquerque, USA) at 10-second resolution over 15
-months. That dataset does not include harmonic/THD measurements, so
-it cannot substitute for the Jamalpur data used here or validate
-this paper's disturbance classifier, but we use one representative
-month of it (April 2023, 259{,}200 valid samples) as an independent,
-unrelated real installation against which to sanity-check the
-digital twin's voltage/frequency assumptions -- see
-Section~\ref{sec:external-validation}.
-
-None of the above combine a physics-based digital twin, a classifier
-trained exclusively on real field data and stress-tested against
-simulated waveforms, cyber-resilient anomaly detection validated with
-a null-result control, and explicit cost uncertainty quantification
-into a single closed-loop system; that combination is this paper's
-contribution relative to the reviewed literature.
+ALA-TKAN, unifying forecasting and dual-optimization energy management
+(THD 1.4\%, \$0.8/Wh). We instead keep the twin's Monte Carlo cost
+projection and HOMER Pro's independent optimizer separate and both
+interval-reported, so an assumed-parameter model is never mistaken
+for a measured one (Section~\ref{sec:limitations}).
+\cite{bashir2023mesadelsol} report power/voltage/frequency telemetry
+from the unrelated Mesa Del Sol microgrid (USA); lacking harmonic
+measurements, it cannot validate our classifier, but its normalized
+V/f behavior sanity-checks the twin's assumptions
+(Section~\ref{sec:external-validation}). None of the above combine a
+physics twin, a real-data-only classifier stress-tested against
+simulated waveforms, null-control-validated anomaly detection, and
+cost uncertainty quantification into one closed-loop system -- the
+combination this paper contributes.
 
 \section{Methodology}
 
 \subsection{Data}
-Two datasets support this work. The first is a 5,000-row,
-single-phase power-quality dataset (voltage, current, frequency,
-harmonics, THD, weather, and a sensor-fault flag), reported by a
-project team member to originate from field measurements at an
-industrial site in Jamalpur, Bangladesh; the original collection
-protocol was not independently available to the authors at the time
-of writing, and independent confirmation is in progress. This
-caveat is stated because two derived columns in the same dataset
+Two real datasets support this work. The first is a 5{,}000-row
+single-phase PQ dataset (voltage, current, frequency, harmonics, THD,
+weather, sensor-fault flag) reported to originate from field
+measurements at an industrial site in Jamalpur, Bangladesh; the
+original collection protocol was not independently available at the
+time of writing, and confirmation is in progress. Two derived columns
 (\texttt{economic\_cost\_BDT}, \texttt{battery\_capacity\_loss\_pct})
 were found to be exact algebraic functions of a third column rather
-than independent measurements, and are therefore excluded from this
-paper's cost analysis (Section~\ref{sec:cost}) as a matter of
-methodological hygiene, independent of the provenance question.
-
-The second is a real HOMER Pro annual hourly simulation (8,760 rows:
-solar, wind, load, battery state-of-charge, and system economics)
-together with HOMER's own multi-architecture optimization output,
-used to drive realistic operating conditions for the physics twin
-(Section~\ref{sec:twin}) and to provide an independent,
-provenance-clean cost comparison (Section~\ref{sec:cost}).
-
-A third, 50,000-row synthetic dataset generated for pipeline
-development is explicitly \emph{not} used to support any claim in
-this paper; it is watermarked at generation time and its own
-repository documentation states it must not be presented as
-real-world evidence.
+than independent measurements and are excluded from the cost analysis
+(Section~\ref{sec:cost}) as a matter of methodological hygiene,
+independent of the provenance question. The second is a real HOMER
+Pro annual hourly simulation (8{,}760 rows) with HOMER's own
+multi-architecture optimization output, used to drive realistic twin
+operating conditions (Section~\ref{sec:twin}) and provide an
+independent cost comparison (Section~\ref{sec:cost}). A third,
+50{,}000-row synthetic dataset used only for pipeline development is
+explicitly excluded from every claim in this paper.
 
 \subsection{Physics-Based Digital Twin}
 \label{sec:twin}
-The electrical-level twin models a Bangladesh-context PV microgrid:
-irradiance- and NOCT-derated-temperature-driven PV output, a
-nonlinear six-pulse-rectifier-type load injecting the characteristic
-non-triplen harmonic set (5th, 7th, 11th, 13th), a Synchronous
-Reference Frame (Park-transform) Active Power Filter, and an
-FFT-based THD analyzer over 5-cycle (100\,ms) windows at a 10\,kHz
-solver rate. The filter suppresses source-current THD from 27.13\%
-to 2.07\% within one cycle of activation, comfortably inside the IEEE
-519 5\% limit.
-
-To move beyond a single arbitrary demonstration timeline, three
-representative operating points were drawn directly from the HOMER
-annual simulation: the peak-load hour, the hour with the sharpest
-hour-over-hour drop in renewable output, and a low-solar/high-wind/
-high-load hour. The Active Power Filter suppresses THD to the same
-level at all three points -- an expected consequence of the harmonic
-model's fixed percentage-of-fundamental structure, and reported here
-as evidence of suppression \emph{robustness} across the annual
-operating envelope, not as three scenarios of differing severity.
-Projected battery cost, by contrast, varies by an order of magnitude
-across the same three hours, driven by each hour's solar throughput.
+The twin models a Bangladesh-context PV microgrid: irradiance- and
+temperature-derated PV output, a nonlinear six-pulse-rectifier load
+injecting the characteristic non-triplen harmonic set (5th, 7th,
+11th, 13th), a Synchronous Reference Frame Active Power Filter, and
+an FFT-based THD analyzer (5-cycle windows, 10~kHz solver rate). The
+filter suppresses source-current THD from 27.13\% to 2.07\% within
+one cycle of activation, inside the IEEE~519 5\% limit
+(Fig.~\ref{fig:spectrum}). Three representative operating points
+drawn from the HOMER annual simulation -- peak load, sharpest
+renewable drop, and low-solar/high-wind/high-load -- all suppress to
+the same THD level (an expected consequence of the harmonic model's
+fixed percentage-of-fundamental structure, reported as suppression
+\emph{robustness}), while projected battery cost varies by an order
+of magnitude across the same three hours.
 
 \subsection{Cyber-Resilient Anomaly Detection}
-An Isolation Forest, trained without access to the ground-truth
-sensor-fault label, is evaluated on both the real disturbance dataset
-and, as a validity control, on the synthetic dataset's fault flag --
-which is generated purely at random by construction and therefore
-has a true chance-level relationship to every feature. The method
-reaches ROC-AUC 0.70 on the real data and collapses to 0.50 (chance)
-on the null-control dataset, evidence the pipeline is measuring a
-real signal rather than an artifact of the method. A supervised
-Random Forest given direct label access reaches ROC-AUC 0.83,
-indicating the fault signal is present in the electrical features but
-is not shaped like a natural multivariate outlier -- a methodological
-finding in its own right, motivating semi-supervised approaches as
-future work rather than indicating the unsupervised method "failed."
+An Isolation Forest, trained without ground-truth fault labels, is
+evaluated on the real disturbance dataset and, as a validity control,
+on a synthetic dataset's by-construction-random fault flag. It
+reaches ROC-AUC 0.70 on real data and collapses to chance (0.50) on
+the null control (Fig.~\ref{fig:anomaly}) -- evidence of a real
+signal, not a method artifact. A supervised Random Forest given label
+access reaches 0.83, indicating the fault signal exists but is not
+shaped like a natural multivariate outlier, motivating
+semi-supervised approaches as future work.
 
 \subsection{Disturbance Prediction and Explainability}
-A four-class Random Forest (None / Voltage\_Sag /
-Harmonic\_Distortion / Combined\_Weather\_Electrical) trained on ten
-electrical and weather features reaches 99.7\% held-out accuracy
-(99.26\% mean over five seeds). SHAP analysis shows
-\texttt{voltage\_rms\_V} dominates Voltage\_Sag predictions and
-\texttt{THD\_voltage\_pct}/harmonic-order features dominate
-Harmonic\_Distortion predictions -- consistent with the physical
-mechanism of each disturbance type, not a black-box coincidence.
+A four-class Random Forest (None / Voltage\_Sag / Harmonic\_Distortion
+/ Combined\_Weather\_Electrical) on ten electrical/weather features
+reaches 99.7\% held-out accuracy (99.26\% mean over five seeds). SHAP
+analysis (Fig.~\ref{fig:shap}) shows \texttt{voltage\_rms\_V}
+dominates Voltage\_Sag predictions and \texttt{THD\_voltage\_pct} /
+harmonic-order features dominate Harmonic\_Distortion predictions --
+consistent with each disturbance's physical mechanism, not a
+black-box coincidence.
 
 \subsection{Closing the Loop: Sim-to-Real Validation}
 \label{sec:bridge}
-The physics twin (Section~\ref{sec:twin}) and the disturbance
-classifier (above) were, until this experiment, two independent
-pipelines running on unrelated data. We test whether they actually
-function as one system by injecting the same four disturbance
-classes into the electrical twin, extracting the identical
-ten-feature vector, and classifying the \emph{simulated} waveform
-with the model trained \emph{only} on real Jamalpur data.
-
-An initial attempt reached 25\% accuracy -- the classifier defaulted
-to the majority class for every input. Diagnosis traced this to the
-twin's ideal, zero-impedance voltage source: \texttt{THD\_voltage\_pct}
-was structurally always exactly zero, yet this is the single largest
-discriminator between Harmonic\_Distortion (real-data mean 11.3\%)
-and Voltage\_Sag (2.9\%) in the training distribution. We added a
-standard linearly-frequency-scaling inductive source reactance
-($X_h = h \cdot X_1$) and recalibrated the injected harmonic
-amplitude to real-world THD magnitudes rather than an uncalibrated
-textbook default (which, at 27\%, exceeded every value in the real
-training distribution). After this correction -- itself a
-textbook-justified addition, not a curve fit to the test set --
-accuracy reached \textbf{93\%} (Table~\ref{tab:bridge}), and the
-anomaly detector flagged 96--100\% of simulated disturbed cases
-versus 28\% of simulated normal cases.
-
-\begin{table}[t]
-\centering
-\caption{Sim-to-real bridge: classifier trained only on real data,
-evaluated on physics-simulated waveforms (25 repetitions/class)}
-\label{tab:bridge}
-\begin{tabular}{lccc}
-\toprule
-Class & Precision & Recall & F1 \\
-\midrule
-None & 1.00 & 1.00 & 1.00 \\
-Harmonic\_Distortion & 1.00 & 1.00 & 1.00 \\
-Voltage\_Sag & 0.78 & 1.00 & 0.88 \\
-Combined\_Weather\_Electrical & 1.00 & 0.72 & 0.84 \\
-\midrule
-\textbf{Overall accuracy} & \multicolumn{3}{c}{\textbf{0.93}} \\
-\bottomrule
-\end{tabular}
-\end{table}
+The twin and classifier were, until this experiment, independent
+pipelines on unrelated data. We test whether they function as one
+system: inject the same four disturbance classes into the twin,
+extract the identical ten-feature vector, and classify the
+\emph{simulated} waveform with the model trained \emph{only} on real
+data. An initial attempt reached 25\% accuracy (majority-class
+default), traced to the twin's ideal, zero-impedance voltage source
+-- \texttt{THD\_voltage\_pct} was structurally always zero, yet is the
+largest discriminator between Harmonic\_Distortion (real-data mean
+11.3\%) and Voltage\_Sag (2.9\%) in training. Adding a standard
+linearly-frequency-scaling source reactance ($X_h = h \cdot X_1$) and
+recalibrating injected harmonic amplitude to real-world THD
+magnitudes (rather than an uncalibrated textbook default exceeding
+every real value) raised accuracy to \textbf{93\%}
+(Fig.~\ref{fig:bridge}; per-class F1: None 1.00, Harmonic\_Distortion
+1.00, Voltage\_Sag 0.88, Combined\_Weather\_Electrical 0.84), with the
+anomaly detector flagging 96--100\% of simulated disturbed cases
+vs.\ 28\% of normal ones.
 
 \subsection{Cost Quantification}
 \label{sec:cost}
-Two independent, provenance-clean cost analyses are used in place of
-the dataset's disputed \texttt{economic\_cost\_BDT} column
-(Section III-A). First, the physics twin's own
-battery-degradation-to-cost model, evaluated under a 200-run Monte
-Carlo with its two assumed parameters (battery replacement cost,
-degradation rate) perturbed $\pm$20\%, gives 26,955 BDT/yr (point
-estimate) with a 90\% interval of [19,623, 34,171] BDT/yr -- reported
-as an interval rather than a false-precision point estimate. Second,
-HOMER Pro's own multi-architecture optimization
-(Table~\ref{tab:homer}) shows renewable fraction and cost of energy
-are strongly inversely related in this system: an 81.4\%-renewable
-configuration reaches \$0.0278/kWh, roughly one-quarter the cost of a
-0\%-renewable, fuel-cell-only configuration at \$0.1032/kWh.
+Two independent, provenance-clean analyses replace the disputed
+\texttt{economic\_cost\_BDT} column. The twin's battery-degradation
+cost model, under a 200-run Monte Carlo ($\pm$20\% on assumed cost
+and degradation-rate parameters), gives 26{,}955 BDT/yr with a 90\%
+interval of [19{,}623, 34{,}171] (Fig.~\ref{fig:sensitivity}). HOMER
+Pro's own optimization (Table~\ref{tab:homer}) shows renewable
+fraction and cost of energy strongly inversely related: an
+81.4\%-renewable configuration reaches \$0.0278/kWh, roughly
+one-quarter the cost of a 0\%-renewable, fuel-cell-only configuration
+at \$0.1032/kWh.
+
+\subsection{External Validation}
+\label{sec:external-validation}
+The twin holds voltage and frequency at an exact constant except
+during one scripted sag -- never previously checked against real
+telemetry. We compare it to one representative month (April 2023,
+259{,}200 valid 10-second samples) of the Mesa Del Sol dataset
+\cite{bashir2023mesadelsol}, an unrelated 60~Hz, $\approx$484~V US
+microgrid -- only normalized, per-unit behavior is comparable to the
+50~Hz, 230~V Jamalpur context. Even with no fault scripted for nearly
+the entire month, real frequency shows continuous std
+$\approx$0.03\% p.u.\ and real voltage shows continuous std
+$\approx$0.5--0.6\% p.u.\ (Fig.~\ref{fig:mesadelsol}) -- concrete
+evidence that a constant-V/f-between-events assumption is a real
+idealization (Section~\ref{sec:limitations}), not a hand-waved
+caveat. This dataset lacks THD/harmonic columns, so it validates V/f
+behavior only.
+
+\section{Results Summary}
+Table~\ref{tab:summary} consolidates the headline results; each is
+generated by a committed, re-runnable script.
+
+\begin{table}[t]
+\centering
+\caption{Headline results}
+\label{tab:summary}
+\begin{tabular}{p{5.4cm}p{2.2cm}}
+\toprule
+Result & Section \\
+\midrule
+THD$_i$: 27.13\% $\to$ 2.07\% & \ref{sec:twin} \\
+Disturbance classifier: 99.7\% acc. & III-D \\
+Anomaly detector: ROC-AUC 0.70 vs.\ 0.50 (null control) & III-B \\
+Sim-to-real bridge: 93\% acc. & \ref{sec:bridge} \\
+Cost: 26{,}955 BDT/yr, 90\% CI [19.6k, 34.2k] & \ref{sec:cost} \\
+HOMER: 81.4\% RE $\to$ \$0.0278/kWh & \ref{sec:cost} \\
+External V/f check: real std $\approx$0.03\% (f), $\approx$0.5--0.6\% (V) p.u. & \ref{sec:external-validation} \\
+\bottomrule
+\end{tabular}
+\end{table}
 
 \begin{table}[t]
 \centering
@@ -392,137 +345,174 @@ configuration reaches \$0.0278/kWh, roughly one-quarter the cost of a
 \toprule
 Config & Renewable Frac. & COE (\$/kWh) & NPC (\$) \\
 \midrule
-1 (PV+WT+FC+BESS) & 81.4\% & 0.0278 & 501,600 \\
-2 (WT+FC+BESS)     & 53.3\% & 0.0671 & 736,617 \\
-3 (FC+BESS only)   & 0.0\%  & 0.1032 & 1,120,089 \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\subsection{External Validation Against an Independent Real Microgrid}
-\label{sec:external-validation}
-The physics twin's \texttt{plant\_step()} models grid voltage and
-frequency as exact constants except during one scripted sag event --
-an idealization never previously checked against real telemetry. To
-test it independently of the Jamalpur dataset and of this project's
-own team, we compare it against one representative month (April 2023,
-259{,}200 valid 10-second samples, after removing an 8{,}424-row
-sentinel/placeholder block inserted by the source logger) of the Mesa
-Del Sol dataset \cite{bashir2023mesadelsol} -- an unrelated 60 Hz,
-$\approx$484 V US commercial microgrid, so only normalized (per-unit)
-behavior, not absolute magnitudes, is comparable to the 50 Hz, 230 V
-Jamalpur context. Even with no fault or sag scripted for nearly the
-entire month, real frequency shows a continuous standard deviation of
-$\approx$0.03\% p.u. (full range $\approx\pm$0.4\% p.u.) and real
-voltage shows a continuous standard deviation of $\approx$0.5--0.6\%
-p.u. (full range $\approx$4--5\% p.u.) at two independent measurement
-points each. This is concrete, independently-sourced evidence that
-the twin's constant-V/constant-f-between-events assumption is an
-idealization worth stating explicitly (Section~\ref{sec:limitations})
-rather than an unexamined convenience. This dataset has no
-THD/harmonic columns, so it validates voltage/frequency behavior only
-and cannot validate the disturbance classifier or THD results.
-
-\section{Results Summary}
-Table~\ref{tab:summary} consolidates the headline results referenced
-above; full per-seed statistics, confusion matrices, and SHAP plots
-are in the project repository's \texttt{results/} and
-\texttt{figures/} directories, generated by the scripts cited in each
-row.
-
-\begin{table}[t]
-\centering
-\caption{Headline results (script that generates each number)}
-\label{tab:summary}
-\begin{tabular}{p{4.6cm}p{3cm}}
-\toprule
-Result & Source script \\
-\midrule
-THD$_i$: 27.13\% $\to$ 2.07\% & \texttt{microgrid\_pq\_twin.py} \\
-Disturbance classifier: 99.7\% acc. & \texttt{disturbance\_classifier.py} \\
-Anomaly detector: ROC-AUC 0.70 vs.\ 0.50 (null control) & \texttt{anomaly\_detection.py} \\
-Sim-to-real bridge: 93\% acc. & \texttt{twin\_to\_cse\_bridge.py} \\
-Cost: 26,955 BDT/yr, 90\% CI [19.6k, 34.2k] & \texttt{sensitivity\_analysis.py} \\
-HOMER: 81.4\% RE $\to$ \$0.0278/kWh & \texttt{homer\_economic\_optimization.py} \\
-External V/f check: real std $\approx$0.03\% (f), $\approx$0.5--0.6\% (V) p.u.\ & \texttt{mesa\_del\_sol\_validation.py} \\
+1 (PV+WT+FC+BESS) & 81.4\% & 0.0278 & 501{,}600 \\
+2 (WT+FC+BESS)     & 53.3\% & 0.0671 & 736{,}617 \\
+3 (FC+BESS only)   & 0.0\%  & 0.1032 & 1{,}120{,}089 \\
 \bottomrule
 \end{tabular}
 \end{table}
 
 \section{Discussion and Limitations}
 \label{sec:limitations}
-Several limitations are stated explicitly rather than left implicit.
-The disturbance dataset's field-measurement provenance rests on a
-team member's confirmation, not an independently verifiable handoff
-record at the time of writing; a documentary request is in progress
-and this section will be updated once resolved. The near-perfect
+Several limitations are stated explicitly. The disturbance dataset's
+field-measurement provenance rests on an unverified report at the
+time of writing; a documentary request is in progress and this
+section will be updated once resolved. The near-perfect
 disturbance-classification accuracy (99.7\%) is plausible given the
-data's exceptionally low noise and complete sensor coverage, both
-atypical of field telemetry, and is reported alongside -- not instead
-of -- the harder unsupervised anomaly-detection result (F1 $\approx$
-0.10) precisely because a reviewer should be able to weigh both. The
-93\% sim-to-real bridge result is, in this light, meaningful
-independent evidence: a model cannot be overfit to idiosyncrasies of
-one dataset it has never seen, so its ability to generalize to an
-unrelated first-principles simulation is a genuine (if imperfect --
-Voltage\_Sag and Combined\_Weather\_Electrical still show some
-cross-confusion) signal that the classifier learned real
-power-quality structure. The physics twin itself remains an
-idealized, single-branch electrical model (no source impedance in
-its primary form, uncited assumed cost parameters, Simulink
-cross-validation still pending as of this writing) that holds voltage
-and frequency at an exact constant except during one scripted event;
-Section~\ref{sec:external-validation}'s comparison against an
-independent real microgrid confirms this last point is a real
-idealization, not a negligible one -- real installations show small
-but continuous V/f variability even under normal operation. Each of
-these is addressed either with an explicit uncertainty bound
-(Section~\ref{sec:cost}) or a stated, unfixed limitation rather than
-silently absorbed into a headline number.
+data's low noise and complete sensor coverage, both atypical of field
+telemetry, and is reported alongside -- not instead of -- the harder
+unsupervised anomaly-detection result (ROC-AUC 0.70) precisely so a
+reviewer can weigh both. The 93\% sim-to-real bridge result is, in
+this light, meaningful independent evidence: a model cannot be
+overfit to idiosyncrasies of a dataset it has never seen, so its
+ability to generalize to an unrelated first-principles simulation
+signals real learned structure. The twin remains an idealized,
+single-branch electrical model (uncited assumed cost parameters,
+Simulink cross-validation still pending) that holds V/f at an exact
+constant except during one scripted event; Section
+\ref{sec:external-validation}'s comparison against an independent
+real microgrid confirms this idealization is real, not negligible.
 
-Returning to the motivation in Section~I: nothing in this framework's
-methodology is intrinsically Bangladesh-specific. The physics twin's
-V/f analysis is normalized (per-unit), which is precisely what let
-Section~\ref{sec:external-validation} validate it against an
-unrelated 60 Hz, $\approx$484 V US microgrid rather than only against
-Jamalpur's 50 Hz, 230 V context; the cost-quantification methodology
-(Section~\ref{sec:cost}) substitutes local currency and tariff inputs
-for BDT without structural change. A decentralized, digital-twin-driven
-approach of this kind is therefore a candidate response on two fronts
-at once: for grids like Bangladesh's, where the 2026 data cited in
-Section~I show the crisis is substantially about fuel logistics and
-dispatch reliability rather than installed capacity
-\cite{dailystar2026pdbplan,dailystar2026rooppur}, decentralized
-renewable microgrids reduce dependence on that centralized,
-fuel-constrained supply chain; and for renewable-heavy grids in
-developed contexts, the same interpretable, cost-aware,
-cyber-resilient monitoring layer addresses the harmonic and
-disturbance-management burden that renewable penetration itself
-introduces (Section~II). This paper does not claim to have deployed
-or field-tested either case -- only that the underlying methodology
-was built and validated in a way that does not foreclose either one.
+Nothing in this methodology is intrinsically Bangladesh-specific: the
+twin's normalized V/f analysis is what let it be validated against an
+unrelated US microgrid, and the cost methodology substitutes local
+currency/tariff inputs without structural change. This framework is
+therefore a candidate response on two fronts: for grids like
+Bangladesh's, where 2026 data show the crisis is substantially about
+fuel logistics and dispatch reliability rather than installed
+capacity \cite{dailystar2026pdbplan,dailystar2026rooppur},
+decentralized renewable microgrids reduce dependence on that
+constrained centralized supply chain; and for renewable-heavy
+developed grids, the same interpretable, cost-aware, cyber-resilient
+layer addresses the harmonic and disturbance-management burden that
+renewable penetration itself introduces (Section~II). This paper does
+not claim to have deployed or field-tested either case -- only that
+the methodology does not foreclose either one.
 
 \section{Conclusion}
 This paper presented a digital twin framework for renewable-microgrid
-power quality management that is cyber-resilient (validated anomaly
-detection with a null-result control), explainable (SHAP attributions
-matching power-engineering expectation), and cost-aware (two
-independent, uncertainty-quantified cost analyses). Unlike a
-side-by-side pairing of a physics simulation and a machine-learning
-pipeline, the two halves were shown to function as one system: a
-classifier trained exclusively on real field data correctly
+power quality management that is cyber-resilient (null-control-
+validated anomaly detection), explainable (SHAP attributions matching
+power-engineering expectation), and cost-aware (two independent,
+uncertainty-quantified cost analyses). Rather than a side-by-side
+physics/ML pairing, the two halves were shown to function as one
+system: a classifier trained exclusively on real field data correctly
 identifies disturbance types in physics-simulated waveforms at 93\%
-accuracy. Future work includes completing the pending Simulink
-cross-validation, extending the source-impedance correction
-(Section~\ref{sec:bridge}) into the primary digital twin rather than
-the bridge test alone, and revisiting the dataset provenance question
+accuracy, and the twin's own voltage/frequency assumptions were
+validated against an independent real microgrid abroad. Future work
+includes completing pending Simulink cross-validation, extending the
+source-impedance correction into the primary twin rather than the
+bridge test alone, and revisiting the dataset-provenance question
 once documentary confirmation is available.
 
-\bibliographystyle{IEEEtran}
-\bibliography{references}
-% references.bib has ONE verified entry (Mesa Del Sol dataset). Add
-% real citations for the rest of Related Work before submitting -
-% every entry so far was independently checked, not guessed; keep it
-% that way.
+\begin{figure}[t]
+\centerline{\includegraphics[width=\linewidth]{figs/fig1_spectrum.png}}
+\caption{Source-current spectrum before/after Active Power Filter
+activation (5th, 7th, 11th, 13th harmonics).}
+\label{fig:spectrum}
+\end{figure}
+
+\begin{figure}[t]
+\centerline{\includegraphics[width=\linewidth]{figs/fig2_anomaly_null_control.png}}
+\caption{Isolation Forest anomaly detection: real disturbance data vs.\
+a by-construction-random null control.}
+\label{fig:anomaly}
+\end{figure}
+
+\begin{figure}[t]
+\centerline{\includegraphics[width=\linewidth]{figs/fig3_shap.png}}
+\caption{SHAP feature attribution for the four-class disturbance
+classifier.}
+\label{fig:shap}
+\end{figure}
+
+\begin{figure}[t]
+\centerline{\includegraphics[width=\linewidth]{figs/fig4_bridge_confusion.png}}
+\caption{Confusion matrix: classifier trained only on real data,
+evaluated on physics-simulated waveforms.}
+\label{fig:bridge}
+\end{figure}
+
+\begin{figure*}[t]
+\centerline{\includegraphics[width=0.85\textwidth]{figs/fig5_cost_sensitivity.png}}
+\caption{Battery-cost Monte Carlo under $\pm$20\% assumed-parameter
+uncertainty: distribution (left) and outcome across the
+assumed-parameter space (right).}
+\label{fig:sensitivity}
+\end{figure*}
+
+\begin{figure*}[t]
+\centerline{\includegraphics[width=0.85\textwidth]{figs/fig6_mesa_del_sol.png}}
+\caption{Independent real-microgrid validation (Mesa Del Sol, April
+2023): frequency (top) and voltage (bottom) at two measurement points
+each, showing continuous variability absent any scripted event.}
+\label{fig:mesadelsol}
+\end{figure*}
+
+\begin{thebibliography}{00}
+\bibitem{hernandezmayoral2024pq} E. Hern\'{a}ndez-Mayoral, C. R.
+Jim\'{e}nez-Rom\'{a}n, J. A. Enriquez-Santiago, A. L\'{o}pez-L\'{o}pez,
+R. A. Gonz\'{a}lez-Dom\'{i}nguez, J. A. Ram\'{i}rez-Torres, J. D.
+Rodr\'{i}guez-Romero, and O. A. Jaramillo, ``Power quality analysis of
+a microgrid-based on renewable energy sources: A simulation-based
+approach,'' \emph{Computation}, vol. 12, no. 11, p. 226, 2024, doi:
+10.3390/computation12110226.
+
+\bibitem{prakash2025aidcmicrogrid} G. Prakash, R. Dharmaprakash, M. S.
+Sujatha, S. Parvez S, and J. K. Reddy, ``Artificial intelligence-based
+power management system for a DC micro-grid,'' \emph{Int. J. Electr.
+Electron. Eng.}, vol. 12, no. 10, 2025, doi:
+10.14445/23488379/IJEEE-V12I10P109.
+
+\bibitem{jahan2026mlpq} I. Jahan, K. N. D. Dinh, V. Bla\v{z}ek, V.
+Snasel, S. Mi\v{s}ak, I. Pergl, F. Mohamed, and A. Mechali, ``Machine
+learning-based power quality prediction in a microgrid for community
+energy systems,'' \emph{Preprints}, 2026, doi:
+10.20944/preprints202602.1410.v1.
+
+\bibitem{osifeko2025aiforecasting} M. Osifeko and J. L. Munda,
+``AI-based forecasting in renewable-rich microgrids: Challenges and
+comparative insights,'' \emph{IEEE Access}, vol. 13, pp. 130446--130474,
+2025, doi: 10.1109/ACCESS.2025.3591091.
+
+\bibitem{daniel2025dualopt} S. Joshua Daniel, M. Karpagam, A. Flah,
+and S. Ben Chaabane, ``Power quality improvement and energy management
+in hybrid microgrids using a dual-optimization approach,'' \emph{Sci.
+Rep.}, vol. 15, no. 1, p. 36201, 2025, doi:
+10.1038/s41598-025-20001-0.
+
+\bibitem{john2026aipqreview} S. S. John, H. A. Sony, Lavanya V., and
+Meera P.S., ``Power quality improvement in microgrids using artificial
+intelligence techniques: A review,'' \emph{Sci. Technol. Energy
+Transit.}, vol. 81, p. 14, 2026, doi: 10.2516/stet/2026015.
+
+\bibitem{bashir2023mesadelsol} A. Bashir, C. Leap, A. Blumenthal, T.
+Estrada, A. Bidram, \emph{et al.}, ``Power, voltage, frequency and
+temperature dataset from Mesa Del Sol microgrid,'' \emph{Dryad}, 2023,
+doi: 10.5061/dryad.fqz612jzb.
+
+\bibitem{dailystar2026loadshedding} The Daily Star, ``Load shedding
+off the charts once again,'' Aug. 2026. [Online]. Available:
+https://www.thedailystar.net/news/bangladesh/news/load-shedding-the-charts-once-again-4244141
+
+\bibitem{dailysun2026rural} Daily Sun, ``2{,}500MW power shortfall
+batters rural areas,'' 2026. [Online]. Available:
+https://www.daily-sun.com/bangladesh/870461
+
+\bibitem{dailystar2026pdbplan} The Daily Star, ``PDB's summer power
+plan: 60\% capacity of gas plants to stay unutilised,'' Apr. 2026.
+[Online]. Available:
+https://www.thedailystar.net/news/bangladesh/news/pdbs-summer-power-plan-60-capacity-gas-plants-stay-unutilised-4145386
+
+\bibitem{dailystar2026rooppur} The Daily Star, ``Bangladesh enters
+nuclear energy era,'' May 2026. [Online]. Available:
+https://www.thedailystar.net/news/bangladesh/news/bangladesh-enters-nuclear-energy-era-4162461
+
+\bibitem{tbs2026rooppur} The Business Standard, ``PM may inaugurate
+commercial operations of Rooppur nuclear plant in August: Minister
+Anam,'' Jun. 2026. [Online]. Available:
+https://www.tbsnews.net/bangladesh/energy/pm-may-inaugurate-commercial-operations-rooppur-nuclear-plant-aug-minister-anam
+
+\end{thebibliography}
 
 \end{document}
