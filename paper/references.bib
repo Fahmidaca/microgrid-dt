@@ -1,6 +1,17 @@
 % Only entries actually verified against a public metadata API (Dryad's
 % or Crossref's - fetched directly, not guessed) go here. Do not add a
 % citation nobody actually read.
+%
+% The news-article entries below (dailystar*, dailysun2026rural,
+% tbs2026rooppur) are a different kind of source: verified via web
+% search result snippets aggregating each outlet's reporting, not a
+% full article fetch (thedailystar.net and daily-sun.com both returned
+% HTTP 403 to direct fetches - the same kind of bot-blocking hit
+% earlier with Dryad's file downloads, not circumvented here either).
+% Cross-checked across multiple independent outlets before being used.
+% Numbers are current as of the search date (2026-08-26); load-shedding
+% figures in particular move week to week and should be re-checked
+% close to submission.
 
 @misc{bashir2023mesadelsol,
   author       = {Bashir, Adnan and Leap, Christopher and Blumenthal, Ansel and Estrada, Trilce and Bidram, Ali and others},
@@ -76,4 +87,48 @@
   pages   = {14},
   doi     = {10.2516/stet/2026015},
   publisher = {EDP Sciences}
+}
+
+% --- Bangladesh load-shedding context, verified via web search 2026-08-26
+%     (search-snippet cross-check across outlets; direct article fetch
+%     blocked by both outlets' anti-bot layer - see file header note) ---
+
+@misc{dailystar2026loadshedding,
+  author       = {{The Daily Star}},
+  title        = {Load shedding off the charts once again},
+  year         = {2026},
+  howpublished = {\url{https://www.thedailystar.net/news/bangladesh/news/load-shedding-the-charts-once-again-4244141}},
+  note         = {Reports Power Grid Company of Bangladesh (PGCB) data: national electricity shortage rising from 335 MW (6 Aug 2026) to 740 MW (7 Aug) to 2{,}167 MW (8 Aug), against a record shortfall of 2{,}500 MW. Accessed 2026-08-26.}
+}
+
+@misc{dailysun2026rural,
+  author       = {{Daily Sun}},
+  title        = {2{,}500{MW} power shortfall batters rural areas},
+  year         = {2026},
+  howpublished = {\url{https://www.daily-sun.com/bangladesh/870461}},
+  note         = {Reports rural consumers experiencing 7--8 (up to 10) hours of daily load-shedding vs.\ 2--3 hours in urban areas outside Dhaka. Accessed 2026-08-26.}
+}
+
+@misc{dailystar2026pdbplan,
+  author       = {{The Daily Star}},
+  title        = {{PDB}'s summer power plan: 60\% capacity of gas plants to stay unutilised},
+  year         = {2026},
+  howpublished = {\url{https://www.thedailystar.net/news/bangladesh/news/pdbs-summer-power-plan-60-capacity-gas-plants-stay-unutilised-4145386}},
+  note         = {Reports Bangladesh Power Development Board (BPDB) internal analysis (Apr 2026): 2026 summer peak demand projected at 18{,}500 MW against 28{,}919 MW of installed generation capacity (May 2026), constrained by a gas supply of 900 MMcf/d (limiting output to $\sim$5{,}200 MW) against a stated need of 1{,}200 MMcf/d to meet peak demand. Accessed 2026-08-26.}
+}
+
+@misc{dailystar2026rooppur,
+  author       = {{The Daily Star}},
+  title        = {Bangladesh enters nuclear energy era},
+  year         = {2026},
+  howpublished = {\url{https://www.thedailystar.net/news/bangladesh/news/bangladesh-enters-nuclear-energy-era-4162461}},
+  note         = {Reports nuclear fuel loading into the Rooppur Nuclear Power Plant Unit 1 (1{,}200 MW) reactor vessel, completed 12 May 2026, with the plant entering final-stage testing. Accessed 2026-08-26.}
+}
+
+@misc{tbs2026rooppur,
+  author       = {{The Business Standard}},
+  title        = {{PM} may inaugurate commercial operations of {R}ooppur nuclear plant in {A}ugust: Minister Anam},
+  year         = {2026},
+  howpublished = {\url{https://www.tbsnews.net/bangladesh/energy/pm-may-inaugurate-commercial-operations-rooppur-nuclear-plant-aug-minister-anam}},
+  note         = {Reports (as of 12 Jun 2026) that Rooppur Unit 1 commercial operation, tentatively targeted for around August 2026 pending preparations, was expected to gradually supply 1{,}000--1{,}100 MW to the national grid, rising toward the 1{,}200 MW ceiling by late 2026/early 2027. Accessed 2026-08-26.}
 }

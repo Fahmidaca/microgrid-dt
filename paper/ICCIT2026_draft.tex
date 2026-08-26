@@ -23,6 +23,14 @@
 %   6. Every number below was pulled from a script that is committed
 %      and re-runnable in this repo (see the file cited in each
 %      subsection) - if you change a script, regenerate the number.
+%   7. Section I now opens with real, cited Bangladesh 2026 load-shedding
+%      and Rooppur nuclear plant figures (paper/references.bib,
+%      dailystar*/dailysun2026rural/tbs2026rooppur) - verified via web
+%      search cross-checked across outlets, not a full article fetch
+%      (both outlets 403'd direct fetches). These are news figures that
+%      move week to week and Rooppur's commissioning date was still
+%      tentative as of the source articles - re-check both right before
+%      submission and update the numbers/citations if they've moved.
 
 \documentclass[conference]{IEEEtran}
 \usepackage{cite}
@@ -87,10 +95,40 @@ anomaly detection, active power filter, techno-economic analysis
 % the project proposal but needs literature grounding, not just
 % restating the proposal's own claims as if they were established facts.
 
+Bangladesh's 2026 power crisis illustrates that this is not simply a
+problem of insufficient generation capacity. In early August 2026,
+Power Grid Company of Bangladesh data showed the national electricity
+shortage climbing from 335 MW to 2{,}167 MW over three days, against a
+record shortfall of 2{,}500 MW that pushed large parts of the country
+into load-shedding of up to 7--8 hours daily in rural areas and 2--3
+hours in urban areas outside Dhaka
+\cite{dailystar2026loadshedding,dailysun2026rural}. Yet Bangladesh
+Power Development Board data put installed generation capacity at
+28{,}919 MW against a projected 2026 summer peak demand of only
+18{,}500 MW -- the shortfall traces instead to a gas-supply
+constraint (900 MMcf/d available against a stated need of 1{,}200
+MMcf/d to run existing plants at peak) \cite{dailystar2026pdbplan}.
+Nor is the problem an absence of new capacity in the pipeline: the
+country's first nuclear facility, the 1{,}200 MW Rooppur Unit 1,
+completed reactor fuel loading in May 2026 and entered final-stage
+testing toward commercial operation later in the year
+\cite{dailystar2026rooppur,tbs2026rooppur}, yet the record shortfall
+above occurred in the same year. Large, centralized capacity
+additions -- fossil or nuclear -- do not by themselves solve a crisis
+that is substantially about fuel logistics, dispatch, and
+distribution reliability, which is exactly the layer at which
+decentralized, renewable-heavy microgrids with local storage and
+predictive management can help, provided their power quality,
+reliability, and cost can be characterized with the same rigor
+expected of a conventional grid asset. This paper's contribution
+targets precisely that characterization problem, and is framed for
+applicability beyond Bangladesh alone (Section~\ref{sec:external-validation}).
+
 The increasing penetration of renewable energy sources and nonlinear
-loads in modern microgrids introduces power quality challenges --
-voltage instability, harmonic distortion, and frequency deviation --
-that degrade reliability and accelerate battery wear. Existing
+loads in modern microgrids -- the same technology positioned to help
+-- introduces its own power quality challenges: voltage instability,
+harmonic distortion, and frequency deviation -- that degrade
+reliability and accelerate battery wear. Existing
 monitoring systems are largely reactive: they report a disturbance
 after it has already occurred, offer no explanation for automated
 decisions, provide no defense against corrupted or spoofed sensor
@@ -441,6 +479,28 @@ but continuous V/f variability even under normal operation. Each of
 these is addressed either with an explicit uncertainty bound
 (Section~\ref{sec:cost}) or a stated, unfixed limitation rather than
 silently absorbed into a headline number.
+
+Returning to the motivation in Section~I: nothing in this framework's
+methodology is intrinsically Bangladesh-specific. The physics twin's
+V/f analysis is normalized (per-unit), which is precisely what let
+Section~\ref{sec:external-validation} validate it against an
+unrelated 60 Hz, $\approx$484 V US microgrid rather than only against
+Jamalpur's 50 Hz, 230 V context; the cost-quantification methodology
+(Section~\ref{sec:cost}) substitutes local currency and tariff inputs
+for BDT without structural change. A decentralized, digital-twin-driven
+approach of this kind is therefore a candidate response on two fronts
+at once: for grids like Bangladesh's, where the 2026 data cited in
+Section~I show the crisis is substantially about fuel logistics and
+dispatch reliability rather than installed capacity
+\cite{dailystar2026pdbplan,dailystar2026rooppur}, decentralized
+renewable microgrids reduce dependence on that centralized,
+fuel-constrained supply chain; and for renewable-heavy grids in
+developed contexts, the same interpretable, cost-aware,
+cyber-resilient monitoring layer addresses the harmonic and
+disturbance-management burden that renewable penetration itself
+introduces (Section~II). This paper does not claim to have deployed
+or field-tested either case -- only that the underlying methodology
+was built and validated in a way that does not foreclose either one.
 
 \section{Conclusion}
 This paper presented a digital twin framework for renewable-microgrid
