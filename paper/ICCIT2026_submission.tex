@@ -115,9 +115,12 @@ shortfall above occurred the same year. Centralized capacity additions
 -- fossil or nuclear -- do not by themselves resolve a crisis rooted
 in fuel logistics and dispatch reliability, exactly the layer at which
 decentralized, renewable-heavy microgrids with local storage and
-predictive management can help, provided their power quality,
-reliability, and cost are characterized as rigorously as a
-conventional grid asset.
+predictive management can help \cite{hossain2026bdmicrogrids},
+provided their power quality, reliability, and cost are characterized
+as rigorously as a conventional grid asset. Renewables remain a small
+share of Bangladesh's generation mix today \cite{akash2024bdrenewables},
+which is exactly why the characterization problem matters now, before
+that share grows.
 
 Renewable penetration and nonlinear loads introduce their own
 power-quality challenges -- voltage instability, harmonic distortion,
@@ -196,12 +199,22 @@ Bangladesh's Jamalpur dataset faces the same category of constraint,
 which is why every accuracy number here is reported alongside an
 explicit uncertainty or robustness check (bootstrap CIs, a
 null-result control, sim-to-real transfer) rather than a bare point
-estimate.
+estimate. On classification specifically, \cite{akkaya2024pqclassifier}
+survey ML algorithms for PQ-disturbance classification on time-series
+windows; our own four-class Random Forest sits within that same
+family but is additionally validated against physics-simulated,
+not just held-out real, waveforms (Section~\ref{sec:bridge}).
 
 On techno-economic optimization, \cite{daniel2025dualopt} propose
 ALA-TKAN, unifying forecasting and dual-optimization energy management
-(THD 1.4\%, \$0.8/Wh). We instead keep the twin's Monte Carlo cost
-projection and HOMER Pro's independent optimizer separate and both
+(THD 1.4\%, \$0.8/Wh), and \cite{araoye2024homergoa} use HOMER paired
+with a grasshopper optimization algorithm for rural hybrid-microgrid
+sizing -- further evidence HOMER is a standard, not idiosyncratic,
+choice for the techno-economic half of this work.
+\cite{zhao2025batterydegradation} model energy-storage degradation
+cost directly in microgrid energy management, the same problem our
+twin's Monte Carlo battery model addresses; we instead keep that
+model and HOMER's independent optimizer separate and both
 interval-reported, so an assumed-parameter model is never mistaken
 for a measured one (Section~\ref{sec:limitations}).
 \cite{bashir2023mesadelsol} report power/voltage/frequency telemetry
@@ -524,11 +537,30 @@ energy systems,'' \emph{Preprints}, 2026, doi:
 comparative insights,'' \emph{IEEE Access}, vol. 13, pp. 130446--130474,
 2025, doi: \href{https://doi.org/10.1109/ACCESS.2025.3591091}{10.1109/ACCESS.2025.3591091}.
 
+\bibitem{akkaya2024pqclassifier} R. Akkaya, A. V. Y\"{u}ksek, and M.
+Akg\"{u}n, ``A comprehensive research of machine learning algorithms
+for power quality disturbances classifier based on time-series
+window,'' \emph{Electr. Eng.}, 2024, doi:
+\href{https://doi.org/10.1007/s00202-023-02177-8}{10.1007/s00202-023-02177-8}.
+
 \bibitem{daniel2025dualopt} S. Joshua Daniel, M. Karpagam, A. Flah,
 and S. Ben Chaabane, ``Power quality improvement and energy management
 in hybrid microgrids using a dual-optimization approach,'' \emph{Sci.
 Rep.}, vol. 15, no. 1, p. 36201, 2025, doi:
 \href{https://doi.org/10.1038/s41598-025-20001-0}{10.1038/s41598-025-20001-0}.
+
+\bibitem{araoye2024homergoa} T. O. Araoye, E. C. Ashigwuike, M. J.
+Mbunwe, O. I. Bakinson, and T. I. Ozue, ``Techno-economic modeling and
+optimal sizing of autonomous hybrid microgrid renewable energy system
+for rural electrification sustainability using HOMER and grasshopper
+optimization algorithm,'' \emph{Renew. Energy}, vol. 229, p. 120712,
+2024, doi:
+\href{https://doi.org/10.1016/j.renene.2024.120712}{10.1016/j.renene.2024.120712}.
+
+\bibitem{zhao2025batterydegradation} Y. Zhao, H. Li, C. Wan, D. Du,
+and B. Chen, ``Microgrid energy management considering energy storage
+degradation cost,'' \emph{Batteries}, vol. 11, no. 5, p. 169, 2025,
+doi: \href{https://doi.org/10.3390/batteries11050169}{10.3390/batteries11050169}.
 
 \bibitem{john2026aipqreview} S. S. John, H. A. Sony, Lavanya V., and
 Meera P.S., ``Power quality improvement in microgrids using artificial
@@ -540,6 +572,18 @@ Transit.}, vol. 81, p. 14, 2026, doi:
 Estrada, A. Bidram, \emph{et al.}, ``Power, voltage, frequency and
 temperature dataset from Mesa Del Sol microgrid,'' \emph{Dryad}, 2023,
 doi: \href{https://doi.org/10.5061/dryad.fqz612jzb}{10.5061/dryad.fqz612jzb}.
+
+\bibitem{hossain2026bdmicrogrids} M. K. Hossain, A. S. Molla, P.
+Chowdhury, F. A. Tanvir, and O. Farrok, ``Transforming sustainable
+energy through microgrids: Bangladesh perspectives,'' \emph{Energy
+Convers. Manag.: X}, vol. 30, p. 101585, 2026, doi:
+\href{https://doi.org/10.1016/j.ecmx.2026.101585}{10.1016/j.ecmx.2026.101585}.
+
+\bibitem{akash2024bdrenewables} F. A. Akash, S. M. Shovon, W. Rahman,
+M. A. Rahman, P. Chakraborty, and M. U. Monir, ``Greening the grid: A
+comprehensive review of renewable energy in Bangladesh,'' \emph{Heliyon},
+vol. 10, no. 5, p. e27477, 2024, doi:
+\href{https://doi.org/10.1016/j.heliyon.2024.e27477}{10.1016/j.heliyon.2024.e27477}.
 
 \bibitem{mbasso2025dtreview} W. F. Mbasso, A. Harrison, I. Dagal, P.
 Jangir, M. Khishe, H. Kotb, M. S. Shaikh, A. Smerat, E. Fendzi Donfack,
