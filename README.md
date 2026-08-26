@@ -810,25 +810,36 @@ Honest note on the gaps:
   reproduces the expected THD suppression, but a formal reproduction
   of Schafer 2016 is not done. (Note: this item belongs to the Parts
   1-4 / tau-robustness paper thread, not the ICCIT Part 5-6 submission
-  — not a blocker for the paper in `paper/ICCIT2026_draft.tex`.)
-- ~~Paper draft.~~ — **started (2026-08-21).**
+  — not a blocker for the paper in
+  `paper/ICCIT2026_submission.tex`.)
+- ~~Paper draft.~~ — **submission-ready draft (2026-08-26).**
   [`PAPER_OUTLINE.md`](PAPER_OUTLINE.md) is the outline for a
   *different* paper (the tau-robustness margin work, Parts 1-4,
   targeting a Q1 journal) — it does not cover Part 6's proposal
-  ("Cyber-Resilient, Explainable Digital Twin...") at all. The actual
-  ICCIT 2026 draft is
-  [`paper/ICCIT2026_draft.tex`](paper/ICCIT2026_draft.tex): full
-  section structure, every headline number pulled from a committed,
-  re-runnable script, honest caveats stated inline rather than
-  hidden. Not compile-tested (no LaTeX toolchain was available when it
-  was written). Section II (Related Work) now cites 7 real papers
-  [`paper/references.bib`](paper/references.bib) — each verified to
-  resolve against Crossref/Dryad's public metadata API (title, authors,
-  journal, DOI all confirmed), summarized from structured abstracts
-  rather than a full read of each PDF, so skim the actual papers
-  yourselves before submitting to confirm the framing is fair. The
-  author block is still a stub — add real author names/affiliations
-  before submitting.
+  ("Cyber-Resilient, Explainable Digital Twin...") at all. The real
+  ICCIT 2026 paper is
+  [`paper/ICCIT2026_submission.tex`](paper/ICCIT2026_submission.tex),
+  self-contained in `paper/` with the official downloaded
+  `IEEEtran.cls` (A4, `a4paper` class option) and 6 real figures under
+  `paper/figs/` — zip the whole `paper/` folder and upload directly to
+  Microsoft CMT / Overleaf. Condensed to fit ICCIT's 6-page / 2-column
+  limit and formatted **double-blind** (no names, affiliations, or
+  emails anywhere — the author block is an explicit placeholder to
+  leave untouched until camera-ready; scanned for identity leaks
+  elsewhere in the text, none found). Section II (Related Work) cites
+  7 papers plus 5 Bangladesh/Rooppur news sources for the new
+  load-shedding-crisis motivation (Section I) —
+  [`paper/references.bib`](paper/references.bib) has the same 12
+  sources in BibTeX form as a canonical record; the submission file
+  itself uses a manual `\thebibliography` (matching the official
+  template, no BibTeX build step needed). Not compile-tested (no LaTeX
+  toolchain available here) — brace/environment/`\ref`-`\label`/
+  `\cite`-`\bibitem` balance was checked programmatically (clean), and
+  a rough word-count-based estimate puts it comfortably under 6 pages,
+  but **you must compile it yourselves** (Overleaf, free, no install)
+  before submitting. The file's own header comment has a prioritized
+  cut list if it runs long. Author names/affiliations stay blank by
+  design — do not fill them in before the review decision.
 - **`economic_cost_BDT` — resolved by decision, not by formula.** Its
   underlying column, `battery_degradation_rate`, has no documented
   time/unit basis (per-hour? per-reading? cumulative?), so any
