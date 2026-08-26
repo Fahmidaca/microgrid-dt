@@ -97,9 +97,9 @@ ones.
 | [`src/`](src/) | All the Python — 13 scripts covering data loading, EDA, baselines, statistics, robustness, synthetic-data generation, compliance classifier, forecasting, anomaly detection, disturbance prediction, explainability, and the interactive dashboard |
 | [`data/raw/uci_grid/`](data/raw/uci_grid/) | UCI Grid Stability CSV (10k rows, downloaded automatically by the loader) |
 | [`data/synthetic/`](data/synthetic/) | The synthetic Bangladesh microgrid dataset (50k rows, .csv + .parquet) — see the strong "do not publish on this" warning in that folder's README |
-| [`data/external/`](data/external/) | The Part 6 power-quality disturbance dataset (5k rows, field-measured at Jamalpur per team confirmation) plus two real HOMER Pro exports used in Part 5: `homer_hourly_simulation.csv` (8,760-row annual hourly simulation) and `homer_npc_coe_optimization.csv` (HOMER's own 3-architecture NPC/COE optimization table). Two columns of the disturbance dataset are team-calculated, not measured — see Part 6 and [`docs/DATA_PROVENANCE_AND_QUALITY.md`](docs/DATA_PROVENANCE_AND_QUALITY.md) before citing `economic_cost_BDT`. |
+| [`data/external/`](data/external/) | The Part 6 power-quality disturbance dataset (5k rows, field-measured at Jamalpur per team confirmation) plus two real HOMER Pro exports used in Part 5: `homer_hourly_simulation.csv` (8,760-row annual hourly simulation) and `homer_npc_coe_optimization.csv` (HOMER's own 3-architecture NPC/COE optimization table). Two columns of the disturbance dataset are team-calculated, not measured — see Part 6 and [`docs/DATA_PROVENANCE_AND_QUALITY.md`](docs/DATA_PROVENANCE_AND_QUALITY.md) before citing `economic_cost_BDT`. `mesa_del_sol/` (gitignored — download it yourself from `doi:10.5061/dryad.fqz612jzb`) holds the independent real-microgrid dataset used for external V/f validation. |
 | [`docs/`](docs/) | [`CSE_WORK_SUMMARY.md`](docs/CSE_WORK_SUMMARY.md) — a CSE-only walkthrough of everything in this section, plus the `data/external/` provenance investigation write-up and the original teammate scripts it was based on |
-| [`eee_sim/`](eee_sim/) | The EEE side's Simulink builder (not yet running, see Part 5), the CSE side's Python port that reproduces the same math, a HOMER-hour-driven scenario runner, the HOMER economic-optimization summary script, the EEE-to-CSE bridge test, and the cost-uncertainty Monte Carlo |
+| [`eee_sim/`](eee_sim/) | The EEE side's Simulink builder (not yet running, see Part 5), the CSE side's Python port that reproduces the same math, a HOMER-hour-driven scenario runner, the HOMER economic-optimization summary script, the EEE-to-CSE bridge test, the cost-uncertainty Monte Carlo, and the Mesa Del Sol external-validation check |
 | [`figures/`](figures/) | 10 sub-folders of plots — EDA, robustness, forecasting, compliance, EEE simulation, synthetic-data EDA, plus Part 6's anomaly / disturbance / xai |
 | [`results/`](results/) | Every metric computed as a CSV — model accuracies, McNemar p-values, robustness margins, forecasting RMSE, anomaly-detection and disturbance-classifier scores, etc. |
 | [`models/`](models/) | Trained model checkpoints (`.pkl` for sklearn, `.pt` for PyTorch). Gitignored — regenerate by rerunning the scripts. |
@@ -137,6 +137,7 @@ python eee_sim/microgrid_pq_twin_scenarios.py    # same twin driven by real HOME
 python eee_sim/homer_economic_optimization.py    # HOMER's own NPC/COE optimization table
 python eee_sim/twin_to_cse_bridge.py             # feeds twin waveforms through the real CSE classifier (run disturbance_classifier.py first)
 python eee_sim/sensitivity_analysis.py 200       # cost uncertainty (90% CI, not just a point estimate)
+python eee_sim/mesa_del_sol_validation.py        # V/f idealization check vs. a real independent microgrid (needs the Dryad CSV locally, see below)
 
 # Power-quality disturbance + cyber-resilience pipeline (Part 6)
 python src/anomaly_detection.py         # Isolation Forest fault detection + threshold tuning
@@ -574,6 +575,36 @@ parameters perturbed ±20% gives:
 
 Report the interval in the paper, not just the point estimate.
 
+### External validation: is "constant V, constant f between events" realistic?
+
+**File:** [`eee_sim/mesa_del_sol_validation.py`](eee_sim/mesa_del_sol_validation.py)
+The twin's `plant_step()` holds voltage and frequency at an exact
+constant except during the one scripted sag — a modeling convenience,
+never checked against a real grid. Mesa Del Sol (University of New
+Mexico microgrid, Dryad `doi:10.5061/dryad.fqz612jzb`) is an unrelated,
+independently-collected, DOI-cited real system — 60 Hz/~484 V, so its
+raw numbers don't compare to Jamalpur/the twin's 50 Hz/230 V, but its
+*normalized* (per-unit) variability does. One representative month
+(April 2023, 259,200 valid 10-second samples, after dropping an
+8,424-row sentinel/placeholder block the source logger itself inserts):
+
+- Frequency: continuous std ≈ 0.03% pu, full range ≈ ±0.4% pu
+- Voltage: continuous std ≈ 0.5–0.6% pu, full range ≈ 4–5% pu
+- …with **no fault or sag event scripted** for nearly all of that month.
+
+That's real, independent evidence that "V and f sit at an exact
+constant except during one scripted event" is an idealization worth
+naming explicitly as a limitation in the paper, rather than an
+assumption nobody checked. No THD/harmonic columns in this dataset, so
+it validates V/f behavior only — it cannot and does not validate
+Jamalpur's THD numbers or the disturbance classifier. Raw CSVs (467 MB
+across 15 months) aren't committed — cite the DOI, don't redistribute
+someone else's dataset; download it yourself and drop a monthly file at
+`data/external/mesa_del_sol/<Month>_<Year>.csv` to reproduce. See
+[`results/mesa_del_sol_validation.csv`](results/mesa_del_sol_validation.csv)
+and
+[`figures/eee_sim/09_mesa_del_sol_validation.png`](figures/eee_sim/09_mesa_del_sol_validation.png).
+
 ---
 
 ## Part 6 — Cyber-resilience, disturbance prediction & explainability
@@ -826,17 +857,29 @@ Honest note on the gaps:
   feeds EEE-simulated waveforms through the CSE classifier trained
   only on real data - 93% sim-to-real accuracy after fixing a real
   zero-source-impedance modeling gap the test itself surfaced.
-- **External validation against an independent real microgrid.**
-  Identified a real, DOI-cited candidate — the Mesa Del Sol microgrid
-  dataset (power/voltage/frequency/thermal, 10-second resolution, 15
-  months, University of New Mexico via Dryad,
-  `doi:10.5061/dryad.fqz612jzb`) — and cited it in the paper's Related
-  Work (`paper/references.bib`). Its row-level CSVs sit behind a
-  JS-based anti-bot challenge that scripted tools can't pass; a real
-  browser download (by a team member, not a scraper) would unblock
-  this. No THD/harmonic columns, so it can validate the twin's
-  voltage/frequency behavior against a second real installation, not
-  feed the disturbance classifier directly.
+- ~~External validation against an independent real microgrid~~ —
+  **done.** [`eee_sim/mesa_del_sol_validation.py`](eee_sim/mesa_del_sol_validation.py)
+  checks the twin's constant-V/constant-f assumption against one month
+  (April 2023, 259,200 valid 10-second samples after dropping a
+  placeholder/sentinel block) of real telemetry from the Mesa Del Sol
+  microgrid (University of New Mexico via Dryad,
+  `doi:10.5061/dryad.fqz612jzb` — a different continent, 60 Hz/~484 V
+  system, so absolute numbers aren't comparable to Jamalpur; only the
+  normalized, per-unit behavior is). Result: real frequency has
+  continuous std of ~0.03% pu (range ±0.4% pu) and real voltage has
+  continuous std of ~0.5-0.6% pu (range ~4-5% pu) even with **no**
+  fault or sag event scripted for most of the record — concrete,
+  independently-sourced evidence that `plant_step()`'s exact-constant
+  V/f between events is an idealization, not a hand-waved caveat. No
+  THD/harmonic columns in this dataset, so it validates V/f behavior
+  only, not the disturbance classifier. See
+  [`results/mesa_del_sol_validation.csv`](results/mesa_del_sol_validation.csv)
+  and
+  [`figures/eee_sim/09_mesa_del_sol_validation.png`](figures/eee_sim/09_mesa_del_sol_validation.png).
+  Raw CSVs are not committed (467 MB across 15 months, belongs to the
+  Dryad DOI — cite it, don't redistribute it); download it yourself and
+  drop the monthly file at `data/external/mesa_del_sol/Apr_2023.csv` to
+  re-run.
 - ~~No uncertainty quantification on the EEE side~~ — **done.** See
   Part 5's "Cost uncertainty" section:
   [`eee_sim/sensitivity_analysis.py`](eee_sim/sensitivity_analysis.py)

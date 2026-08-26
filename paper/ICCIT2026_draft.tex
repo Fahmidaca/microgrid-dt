@@ -145,14 +145,12 @@ the literature; for example, \cite{bashir2023mesadelsol} report
 power, voltage, frequency, and thermal telemetry from the Mesa Del
 Sol microgrid (Albuquerque, USA) at 10-second resolution over 15
 months. That dataset does not include harmonic/THD measurements, so
-it cannot substitute for the Jamalpur data used here, but a full
-external validation of this paper's digital twin against an
-independent, unrelated real installation -- checking, for instance,
-whether the twin's implicit frequency-deviation and voltage-ripple
-assumptions are consistent with real multi-month telemetry from a
-different microgrid -- is identified here as a well-scoped and
-achievable piece of future work, not attempted in this paper due to
-access constraints encountered late in the submission timeline.
+it cannot substitute for the Jamalpur data used here or validate
+this paper's disturbance classifier, but we use one representative
+month of it (April 2023, 259{,}200 valid samples) as an independent,
+unrelated real installation against which to sanity-check the
+digital twin's voltage/frequency assumptions -- see
+Section~\ref{sec:external-validation}.
 
 \section{Methodology}
 
@@ -309,6 +307,30 @@ Config & Renewable Frac. & COE (\$/kWh) & NPC (\$) \\
 \end{tabular}
 \end{table}
 
+\subsection{External Validation Against an Independent Real Microgrid}
+\label{sec:external-validation}
+The physics twin's \texttt{plant\_step()} models grid voltage and
+frequency as exact constants except during one scripted sag event --
+an idealization never previously checked against real telemetry. To
+test it independently of the Jamalpur dataset and of this project's
+own team, we compare it against one representative month (April 2023,
+259{,}200 valid 10-second samples, after removing an 8{,}424-row
+sentinel/placeholder block inserted by the source logger) of the Mesa
+Del Sol dataset \cite{bashir2023mesadelsol} -- an unrelated 60 Hz,
+$\approx$484 V US commercial microgrid, so only normalized (per-unit)
+behavior, not absolute magnitudes, is comparable to the 50 Hz, 230 V
+Jamalpur context. Even with no fault or sag scripted for nearly the
+entire month, real frequency shows a continuous standard deviation of
+$\approx$0.03\% p.u. (full range $\approx\pm$0.4\% p.u.) and real
+voltage shows a continuous standard deviation of $\approx$0.5--0.6\%
+p.u. (full range $\approx$4--5\% p.u.) at two independent measurement
+points each. This is concrete, independently-sourced evidence that
+the twin's constant-V/constant-f-between-events assumption is an
+idealization worth stating explicitly (Section~\ref{sec:limitations})
+rather than an unexamined convenience. This dataset has no
+THD/harmonic columns, so it validates voltage/frequency behavior only
+and cannot validate the disturbance classifier or THD results.
+
 \section{Results Summary}
 Table~\ref{tab:summary} consolidates the headline results referenced
 above; full per-seed statistics, confusion matrices, and SHAP plots
@@ -330,11 +352,13 @@ Anomaly detector: ROC-AUC 0.70 vs.\ 0.50 (null control) & \texttt{anomaly\_detec
 Sim-to-real bridge: 93\% acc. & \texttt{twin\_to\_cse\_bridge.py} \\
 Cost: 26,955 BDT/yr, 90\% CI [19.6k, 34.2k] & \texttt{sensitivity\_analysis.py} \\
 HOMER: 81.4\% RE $\to$ \$0.0278/kWh & \texttt{homer\_economic\_optimization.py} \\
+External V/f check: real std $\approx$0.03\% (f), $\approx$0.5--0.6\% (V) p.u.\ & \texttt{mesa\_del\_sol\_validation.py} \\
 \bottomrule
 \end{tabular}
 \end{table}
 
 \section{Discussion and Limitations}
+\label{sec:limitations}
 Several limitations are stated explicitly rather than left implicit.
 The disturbance dataset's field-measurement provenance rests on a
 team member's confirmation, not an independently verifiable handoff
@@ -354,8 +378,13 @@ cross-confusion) signal that the classifier learned real
 power-quality structure. The physics twin itself remains an
 idealized, single-branch electrical model (no source impedance in
 its primary form, uncited assumed cost parameters, Simulink
-cross-validation still pending as of this writing); each of these is
-addressed either with an explicit uncertainty bound
+cross-validation still pending as of this writing) that holds voltage
+and frequency at an exact constant except during one scripted event;
+Section~\ref{sec:external-validation}'s comparison against an
+independent real microgrid confirms this last point is a real
+idealization, not a negligible one -- real installations show small
+but continuous V/f variability even under normal operation. Each of
+these is addressed either with an explicit uncertainty bound
 (Section~\ref{sec:cost}) or a stated, unfixed limitation rather than
 silently absorbed into a headline number.
 

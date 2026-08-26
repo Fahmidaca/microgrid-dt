@@ -16,6 +16,11 @@ data/raw/*
 !data/raw/uci_grid/
 !data/raw/uci_grid/**
 
+# Mesa Del Sol (Dryad doi:10.5061/dryad.fqz612jzb) - 15 monthly CSVs, ~467 MB
+# total, belongs to that DOI. Cite it, don't redistribute it: download it
+# yourself and drop the monthly file(s) here to re-run mesa_del_sol_validation.py.
+data/external/mesa_del_sol/*.csv
+
 # --- Trained models (regenerate via src/baselines.py / compliance_classifier.py / forecasting.py) ---
 models/*.pkl
 models/**/*.pkl
