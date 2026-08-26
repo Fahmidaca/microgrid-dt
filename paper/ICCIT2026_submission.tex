@@ -159,26 +159,35 @@ capacity-constrained and renewable-heavy developed grids.
 
 \section{Related Work}
 
-Simulation-based power-quality (PQ) analysis of renewable microgrids
-is well established: \cite{hernandezmayoral2024pq} model an IEEE
-14-bus hybrid microgrid in MATLAB/Simulink and evaluate THD against
-IEEE-519, finding wind generation and nonlinear loads the dominant
-distortion drivers -- consistent with our finding that the 6-pulse
-rectifier load is the sole harmonic source worth mitigating.
-Compensation is moving toward AI-tuned rather than fixed-parameter
-designs: \cite{john2026aipqreview} review over 100 studies applying
-swarm intelligence and hybrid AI (ANFIS, PSO-ANN, adaptive
-APF/D-STATCOM/UPQC) for harmonic mitigation, and
+Digital twins for renewable energy systems are a rapidly growing
+research area \cite{mbasso2025dtreview}, and simulation-based
+power-quality (PQ) analysis specifically is well established:
+\cite{hernandezmayoral2024pq} model an IEEE 14-bus hybrid microgrid in
+MATLAB/Simulink and evaluate THD against IEEE-519, finding wind
+generation and nonlinear loads the dominant distortion drivers --
+consistent with our finding that the 6-pulse rectifier load is the
+sole harmonic source worth mitigating. Compensation is moving toward
+AI-tuned rather than fixed-parameter designs: \cite{john2026aipqreview}
+review over 100 studies applying swarm intelligence and hybrid AI
+(ANFIS, PSO-ANN, adaptive APF/D-STATCOM/UPQC) for harmonic mitigation,
 \cite{prakash2025aidcmicrogrid} pair an ANN radial-basis MPPT
 controller with dual fractional-order PID for DC-microgrid battery
-management. Our SRF-based Active Power Filter (Section~\ref{sec:twin})
-is, by this standard, a fixed-parameter design; adaptive tuning is
-future work (Section~\ref{sec:limitations}).
+management, and \cite{barik2025shuntapf} combine multiple control
+strategies in a real-time-implemented shunt Active Power Filter for
+microgrid harmonic mitigation. Our SRF-based Active Power Filter
+(Section~\ref{sec:twin}) is, by this standard, a fixed-parameter
+design; adaptive tuning is future work (Section~\ref{sec:limitations}).
 
 On forecasting, \cite{jahan2026mlpq} benchmark nine ML/DL models
 predicting continuous PQ parameters on a real off-grid platform; ours
 instead classifies discrete disturbance \emph{type} and adds SHAP
-explainability and a cyber-resilience layer.
+explainability -- increasingly recognized as essential for
+trustworthy smart-grid AI \cite{kandula2026xaireview} -- plus a
+cyber-resilience layer. Isolation Forest has precedent specifically
+for smart-grid anomaly detection: \cite{ahmed2019isolationforest}
+apply it to detect covert data-integrity attacks on smart-meter
+networks; we apply the same method to physical disturbance detection
+and add a null-result control neither prior work reports.
 \cite{osifeko2025aiforecasting} benchmark 12 models on South African
 grid data and document constraints specific to data-sparse,
 developing-region deployment -- limited local training data, missing
@@ -511,6 +520,32 @@ Transit.}, vol. 81, p. 14, 2026, doi:
 Estrada, A. Bidram, \emph{et al.}, ``Power, voltage, frequency and
 temperature dataset from Mesa Del Sol microgrid,'' \emph{Dryad}, 2023,
 doi: \href{https://doi.org/10.5061/dryad.fqz612jzb}{10.5061/dryad.fqz612jzb}.
+
+\bibitem{mbasso2025dtreview} W. F. Mbasso, A. Harrison, I. Dagal, P.
+Jangir, M. Khishe, H. Kotb, M. S. Shaikh, A. Smerat, E. Fendzi Donfack,
+and R. Kumar, ``Digital twins in renewable energy systems: A
+comprehensive review of concepts, applications, and future
+directions,'' \emph{Energy Strategy Rev.}, vol. 61, p. 101814, 2025,
+doi: \href{https://doi.org/10.1016/j.esr.2025.101814}{10.1016/j.esr.2025.101814}.
+
+\bibitem{barik2025shuntapf} P. K. Barik, G. Shankar, P. K. Sahoo, and
+S. Samal, ``Simulation and real-time implementation of a combined
+control strategy-based shunt active power filter in microgrid,''
+\emph{Sustain. Comput. Inform. Syst.}, vol. 46, p. 101103, 2025, doi:
+\href{https://doi.org/10.1016/j.suscom.2025.101103}{10.1016/j.suscom.2025.101103}.
+
+\bibitem{kandula2026xaireview} R. Kandula, J. T. Dandamudi, R. D. A.
+Raj, R. M. R. Yanamala, and K. K. Prakasha, ``Explainable AI for smart
+grid intelligence: A comprehensive review of techniques, applications
+and future directions,'' \emph{Energy AI}, vol. 25, p. 100820, 2026,
+doi: \href{https://doi.org/10.1016/j.egyai.2026.100820}{10.1016/j.egyai.2026.100820}.
+
+\bibitem{ahmed2019isolationforest} S. Ahmed, Y. Lee, S.-H. Hyun, and
+I. Koo, ``Unsupervised machine learning-based detection of covert data
+integrity assault in smart grid networks utilizing isolation forest,''
+\emph{IEEE Trans. Inf. Forensics Security}, vol. 14, no. 10, pp.
+2765--2777, 2019, doi:
+\href{https://doi.org/10.1109/tifs.2019.2902822}{10.1109/tifs.2019.2902822}.
 
 \bibitem{dailystar2026loadshedding} The Daily Star, ``Load shedding
 off the charts once again,'' Aug. 2026. [Online]. Available:
