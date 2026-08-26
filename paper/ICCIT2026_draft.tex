@@ -131,11 +131,28 @@ same dataset.
 \end{enumerate}
 
 \section{Related Work}
-% TODO -- stub only. Needs real citations on: power-quality
-% disturbance classification (ML), digital twins for microgrids,
-% Active Power Filter / SRF control, explainable AI in power systems,
-% HOMER-based techno-economic microgrid optimization. Do not cite
-% anything not actually read and verified.
+% TODO -- still needs real citations on: power-quality disturbance
+% classification (ML), digital twins for microgrids, Active Power
+% Filter / SRF control, explainable AI in power systems, HOMER-based
+% techno-economic microgrid optimization. Do not cite anything not
+% actually read and verified. The one entry below was independently
+% verified via Dryad's public API before being added -- keep that bar
+% for anything added after it.
+
+Beyond the datasets used directly in this work (Section III-A),
+real, published microgrid instrumentation datasets exist elsewhere in
+the literature; for example, \cite{bashir2023mesadelsol} report
+power, voltage, frequency, and thermal telemetry from the Mesa Del
+Sol microgrid (Albuquerque, USA) at 10-second resolution over 15
+months. That dataset does not include harmonic/THD measurements, so
+it cannot substitute for the Jamalpur data used here, but a full
+external validation of this paper's digital twin against an
+independent, unrelated real installation -- checking, for instance,
+whether the twin's implicit frequency-deviation and voltage-ripple
+assumptions are consistent with real multi-month telemetry from a
+different microgrid -- is identified here as a well-scoped and
+achievable piece of future work, not attempted in this paper due to
+access constraints encountered late in the submission timeline.
 
 \section{Methodology}
 
@@ -358,9 +375,11 @@ cross-validation, extending the source-impedance correction
 the bridge test alone, and revisiting the dataset provenance question
 once documentary confirmation is available.
 
-% \bibliographystyle{IEEEtran}
-% \bibliography{references}
-% TODO: populate references.bib and uncomment once Related Work (Section II)
-% has real citations.
+\bibliographystyle{IEEEtran}
+\bibliography{references}
+% references.bib has ONE verified entry (Mesa Del Sol dataset). Add
+% real citations for the rest of Related Work before submitting -
+% every entry so far was independently checked, not guessed; keep it
+% that way.
 
 \end{document}

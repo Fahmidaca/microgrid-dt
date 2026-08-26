@@ -791,7 +791,10 @@ Honest note on the gaps:
   re-runnable script, honest caveats stated inline rather than
   hidden. Not compile-tested (no LaTeX toolchain was available when it
   was written) and Section II (Related Work) and the author block are
-  deliberately left as stubs — no citations were invented. Compile it,
+  mostly left as stubs — the one exception is a real, independently
+  verified citation (via Dryad's public API) to the Mesa Del Sol
+  microgrid dataset [`paper/references.bib`](paper/references.bib);
+  no other citation was invented. Compile it,
   fix any issues, add real citations and author names before
   submitting.
 - **`economic_cost_BDT` — resolved by decision, not by formula.** Its
@@ -823,6 +826,17 @@ Honest note on the gaps:
   feeds EEE-simulated waveforms through the CSE classifier trained
   only on real data - 93% sim-to-real accuracy after fixing a real
   zero-source-impedance modeling gap the test itself surfaced.
+- **External validation against an independent real microgrid.**
+  Identified a real, DOI-cited candidate — the Mesa Del Sol microgrid
+  dataset (power/voltage/frequency/thermal, 10-second resolution, 15
+  months, University of New Mexico via Dryad,
+  `doi:10.5061/dryad.fqz612jzb`) — and cited it in the paper's Related
+  Work (`paper/references.bib`). Its row-level CSVs sit behind a
+  JS-based anti-bot challenge that scripted tools can't pass; a real
+  browser download (by a team member, not a scraper) would unblock
+  this. No THD/harmonic columns, so it can validate the twin's
+  voltage/frequency behavior against a second real installation, not
+  feed the disturbance classifier directly.
 - ~~No uncertainty quantification on the EEE side~~ — **done.** See
   Part 5's "Cost uncertainty" section:
   [`eee_sim/sensitivity_analysis.py`](eee_sim/sensitivity_analysis.py)
