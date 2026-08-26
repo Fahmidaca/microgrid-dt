@@ -11,9 +11,11 @@
 %   2. Check ICCIT's actual IEEE Xplore author kit / template and swap
 %      \documentclass[conference]{IEEEtran} for theirs if different.
 %   3. Fill in real author names/affiliations below.
-%   4. Section II (Related Work) is a stub - it needs real literature
-%      citations. Nothing was invented here; do not let a citation
-%      appear that nobody actually read.
+%   4. Section II (Related Work) cites 7 papers, each verified against
+%      Crossref/Dryad metadata (title/authors/journal/DOI all confirmed
+%      to resolve) and summarized from structured abstracts, not from a
+%      full read of each PDF. Skim the actual papers yourselves before
+%      submitting to confirm the framing here is fair to each one.
 %   5. The data-provenance sentence in Section III-A is deliberately
 %      cautious pending the Jamalpur handoff document your teammate
 %      requested (see docs/DATA_PROVENANCE_AND_QUALITY.md) - update it
@@ -131,13 +133,58 @@ same dataset.
 \end{enumerate}
 
 \section{Related Work}
-% TODO -- still needs real citations on: power-quality disturbance
-% classification (ML), digital twins for microgrids, Active Power
-% Filter / SRF control, explainable AI in power systems, HOMER-based
-% techno-economic microgrid optimization. Do not cite anything not
-% actually read and verified. The one entry below was independently
-% verified via Dryad's public API before being added -- keep that bar
-% for anything added after it.
+
+Simulation-based power-quality (PQ) analysis of renewable microgrids
+is well established. \cite{hernandezmayoral2024pq} build a detailed
+IEEE 14-bus hybrid microgrid in MATLAB/Simulink -- PV, wind, diesel,
+storage, and both balanced and unbalanced loads -- and evaluate
+voltage/current THD against IEEE-519, concluding that wind generation
+and nonlinear loads are dominant harmonic-distortion drivers; this
+matches our own finding that the 6-pulse rectifier load is the sole
+harmonic source worth mitigating in our twin. Compensation and control
+have increasingly moved toward AI-tuned rather than fixed-parameter
+designs: \cite{john2026aipqreview} review over 100 studies applying
+swarm intelligence and hybrid AI (ANFIS, PSO-ANN, adaptively-tuned
+APF/D-STATCOM/UPQC) for harmonic mitigation, reporting faster
+convergence and lower THD than fixed-parameter compensators, and
+\cite{prakash2025aidcmicrogrid} pair an ANN radial-basis MPPT
+controller with dual fractional-order PID for DC-microgrid battery
+management. Our twin's SRF-based active power filter (Section
+\ref{sec:twin}) is, by this standard, a fixed-parameter design;
+adaptively tuning it is identified as future work in Section
+\ref{sec:limitations} rather than claimed here.
+
+On the forecasting/classification side, \cite{jahan2026mlpq} benchmark
+nine ML/DL models (LSTM, GRU, DNN, CNN1D-LSTM, BiLSTM, attention-RNN,
+decision tree, SVM, XGBoost) predicting PQ parameters -- voltage,
+THDu, THDi, short-term flicker -- on a real off-grid microgrid
+platform, finding deep models more accurate and classical ones far
+cheaper to run. That work forecasts continuous PQ metrics; ours
+instead classifies discrete disturbance \emph{type} (Section
+\ref{sec:twin}) and adds SHAP-based explainability plus a
+cyber-resilience layer, a different but complementary problem framing.
+\cite{osifeko2025aiforecasting} benchmark 12 models on five years of
+South African grid data and explicitly document the constraints of
+forecasting in data-sparse, developing-region deployments -- limited
+local training data, missing real-time measurement coverage, and poor
+transfer of models trained on developed-country data. Bangladesh's
+Jamalpur dataset used here faces the same category of constraint,
+which is part of why this paper reports every accuracy number
+alongside an explicit uncertainty or robustness check (bootstrap CIs,
+a null-result control, sim-to-real transfer) rather than a bare point
+estimate.
+
+On techno-economic optimization, \cite{daniel2025dualopt} propose
+ALA-TKAN, a single AI framework unifying renewable/load forecasting
+with dual-optimization energy management, reporting THD of 1.4\% and
+energy cost of \$0.8/Wh for a hybrid PV-wind-fuel-cell-battery
+microgrid. Section~\ref{sec:cost} takes a deliberately different
+approach: rather than one model producing both a forecast and a cost
+figure, we keep the physics twin's Monte Carlo cost projection and
+HOMER Pro's independent commercial optimizer separate and both
+interval-reported, specifically so an assumed-parameter model is never
+mistaken for a measured or independently-optimized one -- a provenance
+concern raised throughout this paper (Section~\ref{sec:limitations}).
 
 Beyond the datasets used directly in this work (Section III-A),
 real, published microgrid instrumentation datasets exist elsewhere in
@@ -151,6 +198,13 @@ month of it (April 2023, 259{,}200 valid samples) as an independent,
 unrelated real installation against which to sanity-check the
 digital twin's voltage/frequency assumptions -- see
 Section~\ref{sec:external-validation}.
+
+None of the above combine a physics-based digital twin, a classifier
+trained exclusively on real field data and stress-tested against
+simulated waveforms, cyber-resilient anomaly detection validated with
+a null-result control, and explicit cost uncertainty quantification
+into a single closed-loop system; that combination is this paper's
+contribution relative to the reviewed literature.
 
 \section{Methodology}
 

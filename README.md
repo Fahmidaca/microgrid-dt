@@ -821,13 +821,14 @@ Honest note on the gaps:
   section structure, every headline number pulled from a committed,
   re-runnable script, honest caveats stated inline rather than
   hidden. Not compile-tested (no LaTeX toolchain was available when it
-  was written) and Section II (Related Work) and the author block are
-  mostly left as stubs — the one exception is a real, independently
-  verified citation (via Dryad's public API) to the Mesa Del Sol
-  microgrid dataset [`paper/references.bib`](paper/references.bib);
-  no other citation was invented. Compile it,
-  fix any issues, add real citations and author names before
-  submitting.
+  was written). Section II (Related Work) now cites 7 real papers
+  [`paper/references.bib`](paper/references.bib) — each verified to
+  resolve against Crossref/Dryad's public metadata API (title, authors,
+  journal, DOI all confirmed), summarized from structured abstracts
+  rather than a full read of each PDF, so skim the actual papers
+  yourselves before submitting to confirm the framing is fair. The
+  author block is still a stub — add real author names/affiliations
+  before submitting.
 - **`economic_cost_BDT` — resolved by decision, not by formula.** Its
   underlying column, `battery_degradation_rate`, has no documented
   time/unit basis (per-hour? per-reading? cumulative?), so any
