@@ -53,9 +53,11 @@
 \usepackage{booktabs}
 \usepackage[table]{xcolor}
 \usepackage{float}
+\PassOptionsToPackage{hyphens}{url}
 \usepackage[colorlinks=true,linkcolor=black,citecolor=black,urlcolor=blue]{hyperref}
 
 \begin{document}
+\sloppy
 
 \title{A Cyber-Resilient, Explainable Digital Twin Framework for\\
 Predictive and Cost-Aware Power Quality Management\\
@@ -266,14 +268,14 @@ harmonic model's fixed percentage-of-fundamental structure, reported
 as suppression \emph{robustness}), while projected battery cost
 varies by an order of magnitude across the same three hours.
 
-\begin{figure}[t]
+\begin{figure}[H]
 \centerline{\includegraphics[width=\linewidth]{figs/fig1_spectrum.png}}
 \caption{Source-current spectrum before/after Active Power Filter
 activation (5th, 7th, 11th, 13th harmonics).}
 \label{fig:spectrum}
 \end{figure}
 
-\begin{figure}[t]
+\begin{figure}[H]
 \centerline{\includegraphics[width=\linewidth]{figs/fig8_thd_timeseries.png}}
 \caption{THD$_i$/THD$_v$ vs.\ time: the same suppression event as
 Fig.~\ref{fig:spectrum}, shown in the time domain, with the
@@ -292,7 +294,7 @@ access reaches 0.83, indicating the fault signal exists but is not
 shaped like a natural multivariate outlier, motivating
 semi-supervised approaches as future work.
 
-\begin{figure}[t]
+\begin{figure}[H]
 \centerline{\includegraphics[width=\linewidth]{figs/fig2_anomaly_null_control.png}}
 \caption{Isolation Forest anomaly detection: real disturbance data vs.\
 a by-construction-random null control.}
@@ -314,21 +316,21 @@ per-feature SHAP attribution together for a single reading, so a
 non-technical operator can inspect \emph{why} a prediction was made,
 not just what it was.
 
-\begin{figure}[t]
+\begin{figure}[H]
 \centerline{\includegraphics[width=\linewidth]{figs/fig9_disturbance_confusion.png}}
 \caption{Disturbance classifier confusion matrix on held-out real
 Jamalpur data (test accuracy 0.997).}
 \label{fig:distcm}
 \end{figure}
 
-\begin{figure}[t]
+\begin{figure}[H]
 \centerline{\includegraphics[width=\linewidth]{figs/fig3_shap.png}}
 \caption{SHAP feature attribution for the four-class disturbance
 classifier.}
 \label{fig:shap}
 \end{figure}
 
-\begin{figure}[t]
+\begin{figure}[H]
 \centerline{\includegraphics[width=\linewidth]{figs/fig7_dashboard.png}}
 \caption{Operator-facing dashboard: prediction, anomaly flag, and
 SHAP attribution for a single reading.}
@@ -356,7 +358,7 @@ every real value) raised accuracy to \textbf{93\%}
 anomaly detector flagging 96--100\% of simulated disturbed cases
 vs.\ 28\% of normal ones.
 
-\begin{figure}[t]
+\begin{figure}[H]
 \centerline{\includegraphics[width=\linewidth]{figs/fig4_bridge_confusion.png}}
 \caption{Confusion matrix: classifier trained only on real data,
 evaluated on physics-simulated waveforms.}
@@ -376,7 +378,7 @@ fraction and cost of energy strongly inversely related: an
 one-quarter the cost of a 0\%-renewable, fuel-cell-only configuration
 at \$0.1032/kWh.
 
-\begin{figure*}[t]
+\begin{figure*}[t!]
 \centerline{\includegraphics[width=0.85\textwidth]{figs/fig5_cost_sensitivity.png}}
 \caption{Battery-cost Monte Carlo under $\pm$20\% assumed-parameter
 uncertainty: distribution (left) and outcome across the
@@ -420,7 +422,7 @@ idealization (Section~\ref{sec:limitations}), not a hand-waved
 caveat. This dataset lacks THD/harmonic columns, so it validates V/f
 behavior only.
 
-\begin{figure*}[t]
+\begin{figure*}[t!]
 \centerline{\includegraphics[width=0.85\textwidth]{figs/fig6_mesa_del_sol.png}}
 \caption{Independent real-microgrid validation (Mesa Del Sol, April
 2023): frequency (top) and voltage (bottom) at two measurement points
@@ -563,8 +565,8 @@ and B. Chen, ``Microgrid energy management considering energy storage
 degradation cost,'' \emph{Batteries}, vol. 11, no. 5, p. 169, 2025,
 doi: \href{https://doi.org/10.3390/batteries11050169}{10.3390/batteries11050169}.
 
-\bibitem{john2026aipqreview} S. S. John, H. A. Sony, Lavanya V., and
-Meera P.S., ``Power quality improvement in microgrids using artificial
+\bibitem{john2026aipqreview} S. S. John, H. A. Sony, L. V., and
+M. P. S., ``Power quality improvement in microgrids using artificial
 intelligence techniques: A review,'' \emph{Sci. Technol. Energy
 Transit.}, vol. 81, p. 14, 2026, doi:
 \href{https://doi.org/10.2516/stet/2026015}{10.2516/stet/2026015}.
