@@ -16,17 +16,17 @@
 % that is not the same as a real compile. Before submitting:
 %   1. Compile this in Overleaf (upload the whole paper/ folder) and
 %      fix any real syntax issues - it has not been rendered even once.
-%   2. Confirm it is <= 6 pages. Figures were deliberately cut to 6
-%      (spectrum, anomaly null-control, SHAP, dashboard, bridge
-%      confusion, Mesa Del Sol) - the cost-sensitivity histogram and
-%      the real-data confusion matrix were dropped as redundant with
-%      numbers already stated in Table I/II and body text. All figures
-%      use [t] (not [H]) so LaTeX can pack them efficiently; forcing
-%      exact placement previously pushed this to 7 pages with ugly
-%      empty/crowded gaps. If it still overflows, shorten Related Work
-%      para. 2 next, then fold Table II into a sentence in Sec. III-F.
-%      Figure filenames now match their printed Fig. N number in
-%      reading order - keep them in sync if you reorder a figure.
+%   2. Confirm it is <= 6 pages. Current figure set (7): spectrum,
+%      anomaly null-control, SHAP, dashboard, bridge confusion, cost
+%      sensitivity, Mesa Del Sol - the real-data confusion matrix was
+%      dropped as redundant with the 99.7% figure already in text/
+%      Table I, and the HOMER architecture table was folded into one
+%      sentence in Sec. III-F to make room for the cost-sensitivity
+%      figure instead. All figures use [t] (not [H]) so LaTeX can pack
+%      them efficiently. If it still overflows, the next cut is
+%      shortening Related Work para. 3 (techno-economic) or para. 1
+%      (compensation). Figure filenames match their printed Fig. N
+%      number in reading order - keep them in sync if you reorder one.
 %   3. DOUBLE-BLIND: do NOT add real author names/affiliations/emails
 %      until after the review decision. The \author block below is a
 %      placeholder required by the class; leave it as-is for
@@ -189,28 +189,25 @@ microgrid harmonic mitigation. Our SRF-based Active Power Filter
 design; adaptive tuning is future work (Section~\ref{sec:limitations}).
 
 On forecasting, \cite{jahan2026mlpq} benchmark nine ML/DL models
-predicting continuous PQ parameters on a real off-grid platform; ours
-instead classifies discrete disturbance \emph{type} and adds SHAP
-explainability -- increasingly recognized as essential for
+predicting continuous PQ parameters; ours instead classifies discrete
+disturbance \emph{type} and adds SHAP explainability -- essential for
 trustworthy smart-grid AI \cite{kandula2026xaireview} -- plus a
-cyber-resilience layer. Isolation Forest has precedent specifically
-for smart-grid anomaly detection: \cite{ahmed2019isolationforest}
-apply it to detect covert data-integrity attacks on smart-meter
-networks; we apply the same method to physical disturbance detection
-and add a null-result control neither prior work reports.
+cyber-resilience layer. Isolation Forest has smart-grid precedent:
+\cite{ahmed2019isolationforest} detect covert data-integrity attacks
+on smart meters; we apply it to physical disturbance detection
+instead, adding a null-result control neither prior work reports.
 \cite{osifeko2025aiforecasting} benchmark 12 models on South African
-grid data and document constraints specific to data-sparse,
-developing-region deployment -- limited local training data, missing
-measurement coverage, poor transfer from developed-country models.
-Bangladesh's Jamalpur dataset faces the same category of constraint,
-which is why every accuracy number here is reported alongside an
-explicit uncertainty or robustness check (bootstrap CIs, a
-null-result control, sim-to-real transfer) rather than a bare point
-estimate. On classification specifically, \cite{akkaya2024pqclassifier}
-survey ML algorithms for PQ-disturbance classification on time-series
-windows; our own four-class Random Forest sits within that same
-family but is additionally validated against physics-simulated,
-not just held-out real, waveforms (Section~\ref{sec:bridge}).
+grid data and document data-sparse, developing-region deployment
+constraints -- limited local training data, missing measurement
+coverage, poor transfer from developed-country models. Bangladesh's
+Jamalpur dataset faces the same constraint category, which is why
+every accuracy number here carries an explicit uncertainty or
+robustness check (bootstrap CIs, a null-result control, sim-to-real
+transfer) rather than a bare point estimate.
+\cite{akkaya2024pqclassifier} survey ML algorithms for PQ-disturbance
+classification; our four-class Random Forest sits within that family
+but is additionally validated against physics-simulated, not just
+held-out real, waveforms (Section~\ref{sec:bridge}).
 
 On techno-economic optimization, \cite{daniel2025dualopt} propose
 ALA-TKAN, unifying forecasting and dual-optimization energy management
@@ -359,31 +356,22 @@ Two independent, provenance-clean analyses replace the disputed
 \texttt{economic\_cost\_BDT} column. The twin's battery-degradation
 cost model, under a 200-run Monte Carlo ($\pm$20\% on assumed cost
 and degradation-rate parameters), gives 26{,}955 BDT/yr with a 90\%
-interval of [19{,}623, 34{,}171]. HOMER
-Pro's own optimization (Table~\ref{tab:homer}) shows renewable
-fraction and cost of energy strongly inversely related: an
-81.4\%-renewable configuration reaches \$0.0278/kWh, roughly
-one-quarter the cost of a 0\%-renewable, fuel-cell-only configuration
-at \$0.1032/kWh.
+interval of [19{,}623, 34{,}171] (Fig.~\ref{fig:sensitivity}). HOMER
+Pro's own optimization shows renewable fraction and cost of energy
+strongly inversely related across three candidate architectures:
+81.4\%-renewable (PV+WT+FC+BESS) reaches \$0.0278/kWh (NPC \$501{,}600);
+53.3\%-renewable (WT+FC+BESS) reaches \$0.0671/kWh (NPC \$736{,}617);
+and the 0\%-renewable, fuel-cell-only baseline (FC+BESS) costs
+\$0.1032/kWh (NPC \$1{,}120{,}089) -- roughly four times the
+81.4\%-renewable configuration's cost of energy.
 
-\begin{table}[H]
-\centering
-\footnotesize
-\caption{HOMER optimization: three candidate architectures}
-\label{tab:homer}
-\begin{tabular}{|l|c|c|c|}
-\hline
-\rowcolor{gray!20}
-\textbf{Config} & \textbf{RE Frac.} & \textbf{COE (\$/kWh)} & \textbf{NPC (\$)} \\
-\hline
-1: PV+WT+FC+BESS & 81.4\% & 0.0278 & 501{,}600 \\
-\hline
-2: WT+FC+BESS     & 53.3\% & 0.0671 & 736{,}617 \\
-\hline
-3: FC+BESS only   & 0.0\%  & 0.1032 & 1{,}120{,}089 \\
-\hline
-\end{tabular}
-\end{table}
+\begin{figure*}[t!]
+\centerline{\includegraphics[width=0.85\textwidth]{figs/fig6_cost_sensitivity.png}}
+\caption{Battery-cost Monte Carlo under $\pm$20\% assumed-parameter
+uncertainty: distribution (left) and outcome across the
+assumed-parameter space (right).}
+\label{fig:sensitivity}
+\end{figure*}
 
 \subsection{External Validation}
 \label{sec:external-validation}
@@ -403,7 +391,7 @@ caveat. This dataset lacks THD/harmonic columns, so it validates V/f
 behavior only.
 
 \begin{figure*}[t!]
-\centerline{\includegraphics[width=0.85\textwidth]{figs/fig6_mesa_del_sol.png}}
+\centerline{\includegraphics[width=0.85\textwidth]{figs/fig7_mesa_del_sol.png}}
 \caption{Independent real-microgrid validation (Mesa Del Sol, April
 2023): frequency (top) and voltage (bottom) at two measurement points
 each, showing continuous variability absent any scripted event.}
