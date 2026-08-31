@@ -16,13 +16,17 @@
 % that is not the same as a real compile. Before submitting:
 %   1. Compile this in Overleaf (upload the whole paper/ folder) and
 %      fix any real syntax issues - it has not been rendered even once.
-%   2. Confirm it is <= 6 pages. If it overflows, cut in this order:
-%      (a) Fig. 5 (cost sensitivity histogram - its numbers are already
-%          in Table I and Sec. III-F text, so the figure is the most
-%          redundant one to drop);
-%      (b) shorten Related Work para. 2 (forecasting comparison);
-%      (c) drop Table II (HOMER architectures) and fold its 3 numbers
-%          into a sentence in Sec. III-F.
+%   2. Confirm it is <= 6 pages. Figures were deliberately cut to 6
+%      (spectrum, anomaly null-control, SHAP, dashboard, bridge
+%      confusion, Mesa Del Sol) - the cost-sensitivity histogram and
+%      the real-data confusion matrix were dropped as redundant with
+%      numbers already stated in Table I/II and body text. All figures
+%      use [t] (not [H]) so LaTeX can pack them efficiently; forcing
+%      exact placement previously pushed this to 7 pages with ugly
+%      empty/crowded gaps. If it still overflows, shorten Related Work
+%      para. 2 next, then fold Table II into a sentence in Sec. III-F.
+%      Figure filenames now match their printed Fig. N number in
+%      reading order - keep them in sync if you reorder a figure.
 %   3. DOUBLE-BLIND: do NOT add real author names/affiliations/emails
 %      until after the review decision. The \author block below is a
 %      placeholder required by the class; leave it as-is for
@@ -260,7 +264,7 @@ injecting the characteristic non-triplen harmonic set (5th, 7th,
 an FFT-based THD analyzer (5-cycle windows, 10~kHz solver rate). The
 filter suppresses source-current THD from 27.13\% to 2.07\% within
 one cycle of activation, inside the IEEE~519 5\% limit
-(Figs.~\ref{fig:spectrum}--\ref{fig:thdtime}). Three representative
+(Fig.~\ref{fig:spectrum}). Three representative
 operating points drawn from the HOMER annual simulation -- peak load,
 sharpest renewable drop, and low-solar/high-wind/high-load -- all
 suppress to the same THD level (an expected consequence of the
@@ -268,19 +272,11 @@ harmonic model's fixed percentage-of-fundamental structure, reported
 as suppression \emph{robustness}), while projected battery cost
 varies by an order of magnitude across the same three hours.
 
-\begin{figure}[H]
+\begin{figure}[t]
 \centerline{\includegraphics[width=\linewidth]{figs/fig1_spectrum.png}}
 \caption{Source-current spectrum before/after Active Power Filter
 activation (5th, 7th, 11th, 13th harmonics).}
 \label{fig:spectrum}
-\end{figure}
-
-\begin{figure}[H]
-\centerline{\includegraphics[width=\linewidth]{figs/fig8_thd_timeseries.png}}
-\caption{THD$_i$/THD$_v$ vs.\ time: the same suppression event as
-Fig.~\ref{fig:spectrum}, shown in the time domain, with the
-voltage-sag window and IEEE 519 limit marked.}
-\label{fig:thdtime}
 \end{figure}
 
 \subsection{Cyber-Resilient Anomaly Detection}
@@ -294,7 +290,7 @@ access reaches 0.83, indicating the fault signal exists but is not
 shaped like a natural multivariate outlier, motivating
 semi-supervised approaches as future work.
 
-\begin{figure}[H]
+\begin{figure}[t]
 \centerline{\includegraphics[width=\linewidth]{figs/fig2_anomaly_null_control.png}}
 \caption{Isolation Forest anomaly detection: real disturbance data vs.\
 a by-construction-random null control.}
@@ -304,9 +300,8 @@ a by-construction-random null control.}
 \subsection{Disturbance Prediction and Explainability}
 A four-class Random Forest (None / Voltage\_Sag / Harmonic\_Distortion
 / Combined\_Weather\_Electrical) on ten electrical/weather features
-reaches 99.7\% held-out accuracy (99.26\% mean over five seeds,
-Fig.~\ref{fig:distcm}). SHAP analysis (Fig.~\ref{fig:shap}) shows
-\texttt{voltage\_rms\_V}
+reaches 99.7\% held-out accuracy (99.26\% mean over five seeds).
+SHAP analysis (Fig.~\ref{fig:shap}) shows \texttt{voltage\_rms\_V}
 dominates Voltage\_Sag predictions and \texttt{THD\_voltage\_pct} /
 harmonic-order features dominate Harmonic\_Distortion predictions --
 consistent with each disturbance's physical mechanism, not a
@@ -316,22 +311,15 @@ per-feature SHAP attribution together for a single reading, so a
 non-technical operator can inspect \emph{why} a prediction was made,
 not just what it was.
 
-\begin{figure}[H]
-\centerline{\includegraphics[width=\linewidth]{figs/fig9_disturbance_confusion.png}}
-\caption{Disturbance classifier confusion matrix on held-out real
-Jamalpur data (test accuracy 0.997).}
-\label{fig:distcm}
-\end{figure}
-
-\begin{figure}[H]
+\begin{figure}[t]
 \centerline{\includegraphics[width=\linewidth]{figs/fig3_shap.png}}
 \caption{SHAP feature attribution for the four-class disturbance
 classifier.}
 \label{fig:shap}
 \end{figure}
 
-\begin{figure}[H]
-\centerline{\includegraphics[width=\linewidth]{figs/fig7_dashboard.png}}
+\begin{figure}[t]
+\centerline{\includegraphics[width=\linewidth]{figs/fig4_dashboard.png}}
 \caption{Operator-facing dashboard: prediction, anomaly flag, and
 SHAP attribution for a single reading.}
 \label{fig:dashboard}
@@ -358,8 +346,8 @@ every real value) raised accuracy to \textbf{93\%}
 anomaly detector flagging 96--100\% of simulated disturbed cases
 vs.\ 28\% of normal ones.
 
-\begin{figure}[H]
-\centerline{\includegraphics[width=\linewidth]{figs/fig4_bridge_confusion.png}}
+\begin{figure}[t]
+\centerline{\includegraphics[width=\linewidth]{figs/fig5_bridge_confusion.png}}
 \caption{Confusion matrix: classifier trained only on real data,
 evaluated on physics-simulated waveforms.}
 \label{fig:bridge}
@@ -371,20 +359,12 @@ Two independent, provenance-clean analyses replace the disputed
 \texttt{economic\_cost\_BDT} column. The twin's battery-degradation
 cost model, under a 200-run Monte Carlo ($\pm$20\% on assumed cost
 and degradation-rate parameters), gives 26{,}955 BDT/yr with a 90\%
-interval of [19{,}623, 34{,}171] (Fig.~\ref{fig:sensitivity}). HOMER
+interval of [19{,}623, 34{,}171]. HOMER
 Pro's own optimization (Table~\ref{tab:homer}) shows renewable
 fraction and cost of energy strongly inversely related: an
 81.4\%-renewable configuration reaches \$0.0278/kWh, roughly
 one-quarter the cost of a 0\%-renewable, fuel-cell-only configuration
 at \$0.1032/kWh.
-
-\begin{figure*}[t!]
-\centerline{\includegraphics[width=0.85\textwidth]{figs/fig5_cost_sensitivity.png}}
-\caption{Battery-cost Monte Carlo under $\pm$20\% assumed-parameter
-uncertainty: distribution (left) and outcome across the
-assumed-parameter space (right).}
-\label{fig:sensitivity}
-\end{figure*}
 
 \begin{table}[H]
 \centering
